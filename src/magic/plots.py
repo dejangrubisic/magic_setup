@@ -39,8 +39,7 @@ def heatmap(df, title: str = "", path=None, fmt: str = ".2f"):
     ax.set_yticks(range(data.shape[0]), [str(i) for i in df.index])
     for i in range(data.shape[0]):
         for j in range(data.shape[1]):
-            if not np.isnan(data[i, j]):
-                ax.text(j, i, format(data[i, j], fmt), ha="center", va="center", fontsize=8)
+            ax.text(j, i, format(data[i, j], fmt), ha="center", va="center", fontsize=8)
     fig.colorbar(im, ax=ax)
     ax.set_title(title)
     fig.tight_layout()
