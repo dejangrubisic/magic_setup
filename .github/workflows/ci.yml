@@ -1,0 +1,56 @@
+# Deterministic checks. Job names (lint, test, pr-links-issue) are required status checks:
+# keep them stable, unconditional on PRs, and without matrices.
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: "1"
+  UV_PYTHON: "3.12"
+  HF_HUB_OFFLINE: "1"          # tests never download; fixtures live in tests/fixtures
+  HF_HUB_DISABLE_PROGRESS_BARS: "1"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: astral-sh/setup-uv@v6
+        with: { python-version: "3.12", enable-cache: true }
+      - run: uv sync --locked
+      - run: make lint
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: astral-sh/setup-uv@v6
+        with: { python-version: "3.12", enable-cache: true }
+      - run: uv sync --locked
+      - run: make test
+
+  pr-links-issue:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: PR body must contain "Closes #<issue>"
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          printf '%s' "$BODY" | grep -qiE '\b(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved) #[0-9]+' \
+            || { echo '::error::PR body must contain "Closes #<issue-number>" (one issue per PR)'; exit 1; }

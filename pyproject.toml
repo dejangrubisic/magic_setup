@@ -17,16 +17,70 @@ dependencies = [
     "pydantic>=2.8",
     "tqdm>=4.66",
     "diskcache>=5.6",
+    "tabulate>=0.9",
 ]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.8",
-    "pytest>=8.3",
+    "ruff==0.16.5",
+    "pytest>=9.1",
     "pytest-xdist>=3.6",
+    "pytest-cov>=6.0",
     "pre-commit>=4.0",
 ]
 
 [build-system]
 requires = ["uv_build>=0.11.30,<0.12.0"]
 build-backend = "uv_build"
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+src = ["src", "tests", "scripts"]
+extend-exclude = ["data", "runs", ".claude/worktrees"]
+
+[tool.ruff.lint]
+# Explicit `select` (not extend-select): ruff 0.16 expanded its defaults from 59 to 413 rules,
+# so an explicit list keeps upgrades from silently changing what CI enforces.
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # isort
+    "UP",       # pyupgrade
+    "B",        # bugbear
+    "SIM",      # simplify
+    "C4",       # comprehensions
+    "PT",       # pytest style
+    "RUF",      # ruff-specific
+]
+ignore = [
+    "E501",     # line length: the formatter owns it
+    "E731",     # lambda assignment is fine in research code
+    "E741",     # short math names (l, I, O)
+    "B905",     # zip(strict=) noise
+    "RUF012",   # mutable class attrs in configs
+    "SIM108",   # ternary-vs-if is taste
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest]
+testpaths = ["tests"]
+strict = true
+addopts = ["--tb=short", "--import-mode=importlib", "-ra"]
+markers = [
+    "slow: long-running tests; deselected by default (run all with `pytest -m ''`)",
+    "network: needs internet / API keys; skipped in CI",
+]
+
+# ---------------------------------------------------------------- coverage (advisory: `make test-cov`)
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError", "if __name__ == .__main__.:"]

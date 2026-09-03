@@ -1,0 +1,64 @@
+# The CI agent. Reviews every PR against its linked issue using the same procedure humans and
+# local agents use (.claude/skills/review-pr/SKILL.md), then the job passes only on APPROVE.
+# Job name `review` is a required status check. Fails closed: no verdict => red.
+#
+# Auth: set ONE repo secret -> CLAUDE_CODE_OAUTH_TOKEN (from `claude setup-token`, subscription
+# billing) or ANTHROPIC_API_KEY (API billing). Both inputs are passed; the empty one is ignored.
+name: claude-review
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    # Neutral skip (not a red run) for drafts and bot-initiated pushes.
+    if: github.event.pull_request.draft == false && github.event.sender.type != 'Bot'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      pull-requests: write   # gh pr comment + inline comments
+      issues: read           # gh issue view
+      id-token: write        # required: OIDC exchange for the Claude GitHub App token
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0, persist-credentials: false }
+      - uses: astral-sh/setup-uv@v6
+        with: { python-version: "3.12", enable-cache: true }
+      - run: uv sync --locked
+
+      - id: review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            You are the CI reviewer. Read .claude/skills/review-pr/SKILL.md and follow its procedure
+            exactly for PR ${{ github.event.pull_request.number }}. The PR branch is checked out and
+            the environment is synced (`make test` / `make lint` work). `gh` is authenticated.
+            Post inline comments for concrete defects and ONE summary comment whose first line is
+            "VERDICT: APPROVE" or "VERDICT: REQUEST_CHANGES". Never write the text "@claude".
+            Finally return the JSON described by the schema.
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Glob,Grep,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(make test),Bash(make lint),Bash(uv run pytest:*),mcp__github_inline_comment__create_inline_comment"
+            --json-schema '{"type":"object","required":["verdict","obligations","blocking"],"properties":{"verdict":{"type":"string","enum":["APPROVE","REQUEST_CHANGES"]},"obligations":{"type":"array","items":{"type":"object","required":["text","status","evidence"],"properties":{"text":{"type":"string"},"status":{"type":"string","enum":["met","unmet","unverifiable"]},"evidence":{"type":"string"}}}},"blocking":{"type":"array","items":{"type":"string"}},"notes":{"type":"array","items":{"type":"string"}}}}'
+
+      - name: Gate on verdict (this job is the red/green check)
+        if: always()
+        env:
+          OUT: ${{ steps.review.outputs.structured_output }}
+        run: |
+          if ! printf '%s' "$OUT" | jq . ; then
+            echo "::error::No structured verdict (auth missing, max-turns hit, or run failed). Failing closed."; exit 1
+          fi
+          verdict=$(printf '%s' "$OUT" | jq -r .verdict)
+          echo "verdict=$verdict"
+          [ "$verdict" = "APPROVE" ] || { echo "::error::Reviewer requested changes:"; printf '%s' "$OUT" | jq -r '.blocking[]' ; exit 1; }

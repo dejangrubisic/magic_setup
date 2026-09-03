@@ -29,8 +29,9 @@ runs/
 .claude/settings.local.json
 .kaggle/
 
-# Parallel-agent git worktrees live outside the repo tree, but guard anyway
-.worktrees/
+# Parallel-agent git worktrees (make wt I=N)
+.claude/worktrees/
+CLAUDE.local.md
 
 # OS / editors
 .DS_Store
