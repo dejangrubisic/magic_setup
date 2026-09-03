@@ -9,12 +9,14 @@ taxonomy with counts.
 1. `tasks/livebench_taxonomy.py::classify(text, ground_truth, task) -> str` returns one of
    `correct | wrong_answer | format_failure | truncation | no_answer`:
    - `correct`: strict score == 1
-   - `format_failure`: strict extraction is None but lenient extraction is not None
-   - `truncation`: no extraction in either mode and the text is empty or does not end with a
+   - `truncation`: strict extraction is None and the text is empty or does not end with a
      sentence terminator (`.`, `!`, `?`, `*`, `>`, `\``) after stripping whitespace
-   - `no_answer`: no extraction in either mode, text ends with a terminator
+   - `format_failure`: strict extraction is None but lenient extraction is not None
+   - `no_answer`: no extraction in either mode
    - `wrong_answer`: otherwise (extracted but wrong / partial)
-   Tests cover all five classes.
+   Tests cover all five classes. The lenient last-line fallback in `tasks/livebench.py` applies
+   only to `zebra_puzzle` (free-text answers); for spatial / web_of_lies_v2 lenient stops at the
+   last integer / yes-no list / bold span, so "no answer" is observable.
 2. `agreement(df) -> dict` with keys `n`, `exact_agree` (fraction of rows with equal strict and
    lenient score), `strict_mean`, `lenient_mean`, `lenient_rescues` (rows where strict==0 and
    lenient>0). Tested on a small frame.
@@ -27,7 +29,10 @@ taxonomy with counts.
 IRT, report text, other tasks than the one passed via `--task`.
 
 ## Files expected to change
-`tasks/livebench_taxonomy.py`, `scripts/livebench_taxonomy.py`, `tests/test_livebench_taxonomy.py`
+`tasks/livebench_taxonomy.py`, `scripts/livebench_taxonomy.py`, `tests/test_livebench_taxonomy.py`, `tasks/livebench.py` (lenient last-line fallback limited to zebra_puzzle only)
 
 ## Depends on
 01
+
+## Amendments
+- 2026-09-02 (practice run, recorded on the base branch before the code): truncation checked before format_failure and keyed on the strict extraction; lenient last-line fallback limited to zebra_puzzle; `tasks/livebench.py` added to expected files.

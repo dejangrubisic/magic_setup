@@ -18,6 +18,7 @@ Raw data: `data/raw/livebench/{model_judgment,model_answer,reasoning}.parquet` (
 | 01 | Vertical slice: load, score, per-task accuracy table | - | tasks/livebench.py, scripts/livebench_baseline.py, tests/test_livebench.py, tests/fixtures/livebench_*.jsonl | script prints top-10 models x 3 tasks with Wilson CIs, writes runs/ |
 | 02 | 1PL IRT: difficulty, ability, hardest items, label-error suspects | 01 | tasks/livebench_irt.py, scripts/livebench_irt.py, tests/test_livebench_irt.py | 15 hardest + 5 negative-discrimination items listed |
 | 03 | Parser agreement + failure taxonomy for zebra_puzzle | 01 | tasks/livebench_taxonomy.py, scripts/livebench_taxonomy.py, tests/test_livebench_taxonomy.py | strict/lenient agreement + taxonomy counts on bottom-quartile items |
-| 04 | REPORT.md + dev/LOG.md | 02, 03 | dev/practice/livebench/REPORT.md, dev/LOG.md | report contains all tables with CIs and 3-5 findings |
+| 05 | Spatial extractor accepts shape names; truncation needs >=200 chars | 03 | tasks/livebench.py, tasks/livebench_taxonomy.py, tests | 7 zero-pass spatial items disappear |
+| 04 | REPORT.md + dev/LOG.md | 02, 03, 05 | dev/practice/livebench/REPORT.md, dev/LOG.md | report contains all tables with CIs and 3-5 findings |
 
-Waves: 01 -> (02 || 03) -> 04.
+Waves: 01 -> (02 || 03) -> 05 -> 04.
