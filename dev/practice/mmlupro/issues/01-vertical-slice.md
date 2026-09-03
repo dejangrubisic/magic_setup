@@ -11,7 +11,7 @@ Wilson 95% CIs. Gives the baseline number everything else builds on.
       `load_model_outputs(dir)` -> DataFrame with columns `model, question_id (int), pred, answer,
       category, cot` where `cot` comes from `model_outputs` or `generated_text`, and duplicate
       `(model, question_id)` rows are dropped (first kept). When `questions` is passed and a
-      model's `question_id`s agree with the HF ids on < 99% of rows (matched by question text +
+      model's `question_id`s agree with the HF ids on < 90% of rows (matched by question text +
       first option), that model is re-keyed by text to HF ids and unmatched rows are dropped;
       a `rekeyed` bool column says which rows were re-keyed.
 - [ ] `correctness_matrix(outputs_df)` returns a DataFrame indexed by question_id with one bool column
