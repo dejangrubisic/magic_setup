@@ -60,9 +60,10 @@ jobs:
         env:
           OUT: ${{ steps.review.outputs.structured_output }}
         run: |
-          if ! printf '%s' "$OUT" | jq . ; then
-            echo "::error::No structured verdict (auth missing, max-turns hit, or run failed). Failing closed."; exit 1
+          if [ -z "$OUT" ] || ! printf '%s' "$OUT" | jq -e . >/dev/null; then
+            echo "::error::No structured verdict: the action did not run to completion (GitHub App not installed, secret missing, max-turns hit). Failing closed."; exit 1
           fi
+          printf '%s' "$OUT" | jq .
           verdict=$(printf '%s' "$OUT" | jq -r .verdict)
           echo "verdict=$verdict"
           [ "$verdict" = "APPROVE" ] || { echo "::error::Reviewer requested changes:"; printf '%s' "$OUT" | jq -r '.blocking[]' ; exit 1; }
