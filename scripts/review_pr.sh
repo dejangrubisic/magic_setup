@@ -3,9 +3,10 @@
 #   scripts/review_pr.sh 12                 # review PR #12 (needs gh auth)
 #   scripts/review_pr.sh issue-12 12        # review local branch issue-12 against issue #12
 #   scripts/review_pr.sh issue-12 spec.md   # ... against an issue written in a local markdown file
+#   BASE=<ref> scripts/review_pr.sh ...     # diff against <ref> instead of origin/main
 # Exit 0 on APPROVE, 1 on REQUEST_CHANGES, 2 on no verdict. Full JSON verdict on stdout.
 set -uo pipefail
-target=${1:-}; issue=${2:-}
+target=${1:-}; issue=${2:-}; base=${BASE:-}
 [[ -n "$target" ]] || { echo "usage: $0 <pr-number|branch> [issue-number|issue-file]"; exit 2; }
 CLAUDE=${CLAUDE:-$(command -v claude || ls -t "$HOME"/.cursor/extensions/anthropic.claude-code-*/resources/native-binary/claude 2>/dev/null | head -1)}
 [[ -x "$CLAUDE" ]] || { echo "claude CLI not found; set CLAUDE=/path/to/claude"; exit 2; }
@@ -14,7 +15,7 @@ if [[ "$target" =~ ^[0-9]+$ ]]; then
   args="$target"
 else
   [[ -n "$issue" ]] || { echo "branch mode needs an issue number or file"; exit 2; }
-  args="branch=$target issue=$issue"
+  args="branch=$target issue=$issue${base:+ base=$base}"
 fi
 
 schema='{"type":"object","required":["verdict","obligations","blocking"],"properties":{"verdict":{"type":"string","enum":["APPROVE","REQUEST_CHANGES"]},"obligations":{"type":"array","items":{"type":"object","required":["text","status","evidence"],"properties":{"text":{"type":"string"},"status":{"type":"string","enum":["met","unmet","unverifiable"]},"evidence":{"type":"string"}}}},"blocking":{"type":"array","items":{"type":"string"}},"notes":{"type":"array","items":{"type":"string"}}}}'

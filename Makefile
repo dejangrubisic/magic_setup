@@ -34,12 +34,12 @@ test-cov: ## Tests with a coverage report on src/ (advisory)
 check: lint test ## Everything CI checks, locally
 
 .PHONY: review
-review: ## Local CI-agent review of a branch or PR: make review N=<pr-number> or make review BRANCH=<name> ISSUE=<n>
-	CLAUDE="$(CLAUDE)" scripts/review_pr.sh $(if $(N),$(N),$(BRANCH)) $(ISSUE)
+review: ## Local CI-agent review: make review N=<pr> | make review BRANCH=<name> ISSUE=<n|file> [BASE=<ref>]
+	CLAUDE="$(CLAUDE)" BASE="$(BASE)" scripts/review_pr.sh $(if $(N),$(N),$(BRANCH)) $(ISSUE)
 
 .PHONY: wt
-wt: ## Create a worktree for an issue: make wt I=<issue-number>
-	scripts/wt.sh new $(I)
+wt: ## Create a worktree for an issue: make wt I=<issue-number|name> [BASE=<ref>]
+	scripts/wt.sh new $(I) $(BASE)
 
 .PHONY: wt-rm
 wt-rm: ## Remove a merged issue worktree: make wt-rm I=<issue-number>
