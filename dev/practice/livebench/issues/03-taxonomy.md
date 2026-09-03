@@ -29,10 +29,11 @@ taxonomy with counts.
 IRT, report text, other tasks than the one passed via `--task`.
 
 ## Files expected to change
-`tasks/livebench_taxonomy.py`, `scripts/livebench_taxonomy.py`, `tests/test_livebench_taxonomy.py`, `tasks/livebench.py` (lenient last-line fallback limited to zebra_puzzle only)
+`tasks/livebench_taxonomy.py`, `scripts/livebench_taxonomy.py`, `tests/test_livebench_taxonomy.py`, `tasks/livebench.py` (lenient last-line fallback limited to zebra_puzzle only), `tests/test_livebench.py` (two extractor cases pinning that fallback)
 
 ## Depends on
 01
 
 ## Amendments
 - 2026-09-02 (practice run, recorded on the base branch before the code): truncation checked before format_failure and keyed on the strict extraction; lenient last-line fallback limited to zebra_puzzle; `tasks/livebench.py` added to expected files.
+- 2026-09-02 (review round 2): `tests/test_livebench.py` added to expected files.
