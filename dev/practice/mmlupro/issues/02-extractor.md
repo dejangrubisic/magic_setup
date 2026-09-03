@@ -7,12 +7,13 @@ format-failure rate (strict returns None). Also per-category accuracy (using `pr
 
 ## Acceptance criteria
 - [ ] `tasks/mmlupro_extract.py` exposes `extract_strict(text) -> str|None` matching
-      `answer is (X)` / `answer is X` / `Answer: (X)` (case-insensitive, X in A-J, last match wins)
+      `answer is (X)` / `answer is X` / `Answer: (X)` (case-insensitive, X in A-J, FIRST match wins as in the official scorer; `last=True` returns the last match)
       and `extract_lenient(text) -> str|None` returning the last standalone capital letter A-J
       (word-boundary, optionally in parentheses) in the text, falling back to None.
 - [ ] `score_extractors(outputs_df)` returns a per-model DataFrame with columns
-      `n, acc_pred, acc_strict, acc_lenient, agree_strict_pred, agree_lenient_pred, format_fail`
-      where `format_fail` = fraction with strict None, and `acc_*` are accuracies treating None as wrong.
+      `n, acc_pred, acc_strict, acc_lenient, agree_strict_pred, agree_lenient_pred, format_fail, runaway`
+      where `format_fail` = fraction with strict None, `runaway` = fraction where the first and last
+      strict matches differ (model kept generating after answering), and `acc_*` are accuracies treating None as wrong.
 - [ ] `category_accuracy(outputs_df)` returns rows `category, model, n, acc, lo, hi` (Wilson).
 - [ ] `uv run pytest tests/test_mmlupro_extract.py` passes with hand-written strings covering: strict
       hit, strict miss + lenient hit, no letters, letter inside a word (must not match), lowercase.
