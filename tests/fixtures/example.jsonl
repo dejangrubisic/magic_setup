@@ -1,0 +1,3 @@
+{"id": "ex-1", "input": "Reasoning... The answer is (B).", "target": "B", "metadata": {"category": "math"}}
+{"id": "ex-2", "input": "I think the answer is (A) because", "target": "C", "metadata": {"category": "math"}}
+{"id": "ex-3", "input": "No final answer given", "target": "D", "metadata": {"category": "logic"}}

@@ -36,3 +36,16 @@ def test_heatmap_annotates_every_cell(tmp_path):
     texts = [t.get_text() for t in fig.axes[0].texts]
     assert texts == ["0.50", "1.00", "1.00", "nan"]
     assert [t.get_text() for t in fig.axes[0].get_yticklabels()] == ["math", "code"]
+
+
+def test_line_with_ci_saves_a_png(tmp_path):
+    from magic.plots import line_with_ci
+
+    x = [0, 1, 2]
+    fig = line_with_ci(
+        {"a": (x, [0.1, 0.5, 0.9], [0.0, 0.4, 0.8], [0.2, 0.6, 1.0])},
+        title="t",
+        path=tmp_path / "c.png",
+    )
+    assert fig is not None
+    assert (tmp_path / "c.png").stat().st_size > 0

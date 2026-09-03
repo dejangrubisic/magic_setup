@@ -11,7 +11,14 @@
 Use the `reviewer` subagent before every PR. Read the skill file before acting on one.
 
 ## Gotchas
-- Python files are auto-formatted by a hook after every edit; re-read a file before editing it again.
+- Python files are auto-formatted by a hook after every edit: re-read before editing again, and do
+  not rely on `# noqa` or import order surviving. Task code goes in `src/magic/tasks/<name>.py`
+  (importable everywhere); `scripts/` and `tasks/` at the repo root are not on `sys.path`.
+- A pre-commit auto-fix (whitespace, ruff) fails the commit and leaves it un-made: re-run `git commit`
+  and check `git log -1` before `make review`; the review script refuses empty diffs and dirty trees.
+- Branch every issue from `origin/main`, never from another issue branch; if it depends on one, wait
+  for that PR to merge. Issue amendments that touch shared files land on `main` first.
+- Parallel agents: use your own worktree (or `runs/`) for scratch files, never a shared temp dir.
 - `uv run` re-syncs the env on every call; a stale `uv.lock` fails `make lint` (`uv lock` fixes it).
 - The Claude binary may not be on PATH; `make review` finds the IDE-bundled one automatically.
 - `datasets.load_dataset` caches under `~/.cache/huggingface`; large downloads go in `data/raw` and

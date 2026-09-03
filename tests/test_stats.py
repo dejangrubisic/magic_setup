@@ -75,3 +75,17 @@ def test_paired_diff_on_noisy_pairs_includes_zero_when_runs_tie():
 def test_paired_diff_requires_aligned_arrays():
     with pytest.raises(ValueError, match="align"):
         paired_bootstrap_diff([1.0, 2.0], [1.0])
+
+
+def test_bootstrap_ci_paired_arrays_and_nan_resamples():
+    import numpy as np
+    from scipy.stats import spearmanr
+
+    from magic.stats import bootstrap_ci
+
+    y = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+    pred = np.array([1.1, 1.9, 3.2, 3.9, 5.3, 5.8])
+    point, lo, hi = bootstrap_ci(y, lambda a, b: spearmanr(a, b).statistic, 300, 0.05, 0, pred)
+    assert point == 1.0
+    assert lo <= point <= hi
+    assert not np.isnan(lo)  # constant resamples give NaN correlations and are ignored

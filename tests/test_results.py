@@ -84,3 +84,23 @@ def test_to_markdown_renders_a_table(runs_root):
     assert "| ALL" in table
     assert "0.500" in table
     assert table.count("\n") == 4
+
+
+def test_ci_by_group_and_config_in_load_runs(tmp_path):
+    import pandas as pd
+
+    from magic.results import ci_by_group, load_runs
+    from magic.runs import RunDir
+
+    run = RunDir(tmp_path / "r1")
+    run.write_config({"seed": 7})
+    for i in range(12):
+        run.append({"id": f"s{i}", "score": float(i % 2), "metadata": {"g": "a" if i < 6 else "b"}})
+    run.write_summary({"n": 12})
+    runs_df, samples_df = load_runs(tmp_path)
+    assert runs_df.loc[0, "config.seed"] == 7
+    ci = ci_by_group(samples_df, "metadata.g")
+    assert list(ci["metadata.g"]) == ["a", "b"]
+    assert list(ci["n"]) == [6, 6]
+    assert ((ci["lo"] <= ci["mean"]) & (ci["mean"] <= ci["hi"])).all()
+    assert isinstance(ci, pd.DataFrame)

@@ -11,8 +11,10 @@ Argument: an epic number, or a list of issue numbers. Default parallelism: 3.
    closed, with "Files expected to change" disjoint from issues currently in flight.
 2. **Launch.** For each ready issue up to the parallelism limit, start a background agent whose whole
    prompt is: "Follow `.claude/skills/implement-issue/SKILL.md` for issue #N. Report the PR URL and
-   the final verdict." The skill creates its own worktree; do not pre-create one. Never run two agents
-   on issues that share a file.
+   the final verdict. Keep all scratch files inside your worktree." The skill creates its own worktree;
+   do not pre-create one. Never run two agents on issues that share a file. More than three concurrent
+   agents plus CI reviews can exhaust a subscription's session window; if agents die with a
+   rate-limit message, wait for the reset and resume them from their worktrees, do not restart.
 3. **Loop.** When an agent finishes, record its result in a status table (issue, PR, rounds, state),
    recompute the ready set, launch the next. Merges happen one at a time through `--auto --squash`;
    an agent whose PR conflicts rebases and re-runs tests before retrying.

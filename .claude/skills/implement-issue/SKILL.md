@@ -17,7 +17,8 @@ Work in the issue's own worktree. One issue, one branch, one PR. Stop and ask a 
    outputs; mock only network/API. No placeholders or stubs: if you cannot finish, leave the failing
    test and say so in the PR. Touch only the files the issue lists; new behaviour goes in new files.
 5. **Green.** `make lint && make test`. Fix root causes; never skip, weaken or delete tests.
-   Commit after each green run with a message that says why.
+   Commit after each green run with a message that says why, and confirm with `git log -1` (an
+   auto-fix hook can fail the commit silently).
 6. **Fresh-context review.** Run `make review BRANCH=issue-$ARGUMENTS ISSUE=$ARGUMENTS` (or ask the
    `reviewer` subagent). Fix every blocking finding; re-run until `VERDICT: APPROVE`.
 7. **PR.** `git fetch origin && git rebase origin/main && make test`, `git push -u origin issue-$ARGUMENTS`,

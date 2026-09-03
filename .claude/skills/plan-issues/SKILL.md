@@ -20,6 +20,10 @@ an issue becomes hundreds of bad lines of code.
      (`pyproject.toml`, `Makefile`, `conftest.py`, `CLAUDE.md`) change only in a dedicated issue.
    - Prefer more small issues over fewer big ones; an agent should finish one in 20-60 minutes.
    - Data download/caching, evaluation harness, and analysis/report are separate issues.
+   - If the metric is a function of the ordering key (e.g. difficulty label used both to order a
+     curriculum and to score it), say so in the issue so degenerate results are not treated as bugs.
+   - Without GitHub (offline), an issue is a markdown file with the same five fields:
+     `## Goal`, `## Acceptance criteria`, `## Out of scope`, `## Files expected to change`, `## Depends on`.
 3. **Review with the human.** Show the plan as a table (number, title, depends-on, files, one-line
    AC). Iterate until approved. Ask a fresh `reviewer` subagent to poke holes (ambiguity, missing
    criteria, hidden shared files) before the human sees it.
