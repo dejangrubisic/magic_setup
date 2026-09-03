@@ -1,7 +1,7 @@
 @CONTRIBUTING.md
 
 ## Commands
-| `make install` | once per clone: env + git hooks | | `make lint` | format check + lint + lock check |
+| `make doctor` | what is missing before work can start | | `make install` | once per clone: env + git hooks | | `make lint` | format check + lint + lock check |
 | `make test` | fast parallel tests | | `make check` | lint + test (what CI runs) |
 | `make wt I=N` / `make wt-rm I=N` | worktree for issue N / remove it | | `make review BRANCH=issue-N ISSUE=N` | local CI-agent review |
 | `uv run pytest tests/test_x.py::test_y -x` | one test | | `uv add <pkg>` | add a dependency (re-locks) |

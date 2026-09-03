@@ -6,6 +6,10 @@ SHELL := /bin/bash
 # Claude CLI: on PATH, or the binary bundled with the IDE extension.
 CLAUDE ?= $(shell command -v claude 2>/dev/null || ls -t $(HOME)/.cursor/extensions/anthropic.claude-code-*/resources/native-binary/claude 2>/dev/null | head -1)
 
+.PHONY: doctor
+doctor: ## Day-one readiness check (uv, claude, gh auth, secrets, ruleset)
+	@scripts/doctor.sh
+
 .PHONY: install
 install: ## Sync the env and install git hooks (run once per clone; worktrees share hooks)
 	uv sync

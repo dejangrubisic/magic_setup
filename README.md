@@ -4,6 +4,7 @@ A repository prepared to move fast on a time-limited ML evaluation / curriculum 
 task with a human plus parallel Claude Code agents.
 
 ```
+make doctor                       # what is missing (gh login, secret, ruleset)
 make install                      # uv env + git hooks (once)
 make check                        # lint + test, same as CI
 /plan-issues <task description>   # in Claude Code: write the epic + sub-issues together
