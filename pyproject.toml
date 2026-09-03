@@ -48,7 +48,7 @@ build-backend = "uv_build"
 # ---------------------------------------------------------------- ruff
 [tool.ruff]
 line-length = 100
-src = ["src", "tests", "scripts"]
+src = ["src", "tests"]
 extend-exclude = ["data", "runs", ".claude/worktrees"]
 
 [tool.ruff.lint]
@@ -82,7 +82,3 @@ ignore = [
 testpaths = ["tests"]
 strict = true
 addopts = ["--tb=short", "--import-mode=importlib", "-ra"]
-markers = [
-    "slow: long-running tests; deselected by default (run all with `pytest -m ''`)",
-    "network: needs internet / API keys; skipped in CI",
-]

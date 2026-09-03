@@ -1,5 +1,5 @@
-# Deterministic checks. Job names (lint, test, pr-links-issue) are required status checks:
-# keep them stable, unconditional on PRs, and without matrices.
+# Required checks on main: lint, test, pr-links-issue, review. Keep the job names stable.
+# `review` runs the same scripts/review.sh humans and agents run locally.
 name: ci
 on:
   push:
@@ -17,8 +17,7 @@ concurrency:
 env:
   FORCE_COLOR: "1"
   UV_PYTHON: "3.12"
-  HF_HUB_OFFLINE: "1"          # tests never download; fixtures live in tests/fixtures
-  HF_HUB_DISABLE_PROGRESS_BARS: "1"
+  HF_HUB_OFFLINE: "1"
 
 jobs:
   lint:
@@ -48,9 +47,38 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - name: PR body must contain "Closes #<issue>"
-        env:
+      - env:
           BODY: ${{ github.event.pull_request.body }}
         run: |
           printf '%s' "$BODY" | grep -qiE '\b(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved) #[0-9]+' \
             || { echo '::error::PR body must contain "Closes #<issue-number>" (one issue per PR)'; exit 1; }
+
+  review:
+    # Drafts are not reviewed (they cannot be merged anyway); mark the PR ready after a local APPROVE.
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+    env:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0, persist-credentials: false }
+      - uses: astral-sh/setup-uv@v6
+        with: { python-version: "3.12", enable-cache: true }
+      - run: uv sync --locked
+      - name: Install Claude CLI
+        run: curl -fsSL https://claude.ai/install.sh | bash && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Review the PR against its issue
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          n=$(printf '%s' "$BODY" | grep -oiE '\b(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved) #[0-9]+' | head -1 | grep -oE '[0-9]+$')
+          [ -n "$n" ] || { echo "::error::no linked issue in the PR body"; exit 1; }
+          git branch -f "issue-$n" HEAD
+          scripts/review.sh "$n"

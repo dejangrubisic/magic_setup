@@ -20,8 +20,6 @@ runs/
 *.parquet
 *.csv
 *.jsonl
-!tests/fixtures/*.jsonl
-!tests/fixtures/*.csv
 
 # Secrets and local settings
 .env

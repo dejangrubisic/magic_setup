@@ -22,7 +22,6 @@
       "Bash(git checkout *)",
       "Bash(git switch *)",
       "Bash(git branch *)",
-      "Bash(git worktree *)",
       "Bash(git push *)",
       "Bash(gh issue *)",
       "Bash(gh pr *)",
@@ -35,7 +34,8 @@
       "Bash(tail *)",
       "Bash(wc *)",
       "Bash(find *)",
-      "Bash(mkdir *)"
+      "Bash(mkdir *)",
+      "Bash(git worktree *)"
     ],
     "deny": [
       "Read(./.env)",
