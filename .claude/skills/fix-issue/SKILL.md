@@ -31,6 +31,6 @@ guess when the issue is ambiguous, impossible, or contradicts the code.
 9. **Merge.** Only when every check is green: `gh pr merge --auto --squash` (or `--squash` if
    auto-merge is unavailable). Poll `gh pr view --json state` until merged.
 10. **Clean.** From the main checkout: `git worktree remove .claude/worktrees/issue-$ARGUMENTS`,
-    `git branch -d issue-$ARGUMENTS`. Append a `dev/LOG.md` entry if the issue produced a result.
+    `git branch -d issue-$ARGUMENTS`. If the issue produced a result, it is on the issue or PR.
 11. **Report.** PR URL, review rounds, and anything the reviewer caught that an agent should have
     known; propose it as one line for the Gotchas in `CLAUDE.md` (do not edit it yourself).
