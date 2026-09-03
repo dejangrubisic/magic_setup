@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import Ridge
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -95,4 +97,56 @@ def build_models(seed: int = 0) -> dict[str, Pipeline]:
             ("ridge", Ridge(alpha=1.0)),
         ]
     )
-    return {"length_only": length_only}
+    ridge_hand_tfidf = Pipeline(
+        [
+            (
+                "cols",
+                ColumnTransformer(
+                    [
+                        ("num", StandardScaler(), HAND_FEATURES),
+                        ("tfidf", TfidfVectorizer(ngram_range=(1, 2), min_df=2), "question"),
+                    ]
+                ),
+            ),
+            ("ridge", Ridge(alpha=3.0)),
+        ]
+    )
+    gbr_hand = Pipeline(
+        [
+            ("cols", ColumnTransformer([("num", "passthrough", HAND_FEATURES)])),
+            (
+                "gbr",
+                GradientBoostingRegressor(
+                    n_estimators=200, max_depth=3, learning_rate=0.05, random_state=seed
+                ),
+            ),
+        ]
+    )
+    return {
+        "length_only": length_only,
+        "ridge_hand_tfidf": ridge_hand_tfidf,
+        "gbr_hand": gbr_hand,
+    }
+
+
+def residual_table(samples_df: pd.DataFrame, n_bins: int = 5) -> pd.DataFrame:
+    """Error by true-rating quantile bin: n, mean |pred - true|, mean (pred - true)."""
+    df = samples_df.copy()
+    edges = np.linspace(0.0, 1.0, n_bins + 1)
+    df["bin"] = pd.cut(df.rating_quantile, edges, include_lowest=True)
+    err = df.y_pred - df.y_true
+    out = pd.DataFrame(
+        {
+            "n": df.groupby("bin", observed=False).size(),
+            "mean_abs_err": err.abs().groupby(df.bin, observed=False).mean(),
+            "mean_signed_err": err.groupby(df.bin, observed=False).mean(),
+        }
+    )
+    out.index = out.index.astype(str)
+    return out
+
+
+def worst_examples(samples_df: pd.DataFrame, k: int = 10) -> pd.DataFrame:
+    """The k items with the largest |pred - true|, largest first."""
+    df = samples_df.assign(abs_err=(samples_df.y_pred - samples_df.y_true).abs())
+    return df.sort_values("abs_err", ascending=False).head(k)
