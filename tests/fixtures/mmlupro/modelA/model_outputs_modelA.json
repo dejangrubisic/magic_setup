@@ -1,0 +1,72 @@
+[
+ {
+  "question_id": "1",
+  "question": "q1",
+  "options": "['a', 'b', 'c', 'd']",
+  "answer": "A",
+  "answer_index": "0",
+  "category": "math",
+  "pred": "A",
+  "model_outputs": "The answer is (A)."
+ },
+ {
+  "question_id": "2",
+  "question": "q2",
+  "options": "['a', 'b', 'c', 'd']",
+  "answer": "B",
+  "answer_index": "1",
+  "category": "math",
+  "pred": "B",
+  "model_outputs": "answer is (B)"
+ },
+ {
+  "question_id": "3",
+  "question": "q3",
+  "options": "['a', 'b', 'c', 'd']",
+  "answer": "C",
+  "answer_index": "2",
+  "category": "law",
+  "pred": "C",
+  "model_outputs": "So the answer is C"
+ },
+ {
+  "question_id": "4",
+  "question": "q4",
+  "options": "['a', 'b', 'c', 'd']",
+  "answer": "D",
+  "answer_index": "3",
+  "category": "law",
+  "pred": "A",
+  "model_outputs": "I think A"
+ },
+ {
+  "question_id": "5",
+  "question": "q5",
+  "options": "['a', 'b', 'c', 'd']",
+  "answer": "A",
+  "answer_index": "0",
+  "category": "law",
+  "pred": "B",
+  "model_outputs": "B is best"
+ },
+ {
+  "question_id": "6",
+  "question": "q6",
+  "options": "['a', 'a', 'c', 'd']",
+  "answer": "A",
+  "answer_index": "0",
+  "category": "math",
+  "pred": "C",
+  "model_outputs": "Answer: (C)"
+ },
+ {
+  "question_id": "1",
+  "question": "q1",
+  "options": "['a', 'b', 'c', 'd']",
+  "answer": "A",
+  "answer_index": "0",
+  "category": "math",
+  "pred": "D",
+  "model_outputs": "dup row"
+ }
+]

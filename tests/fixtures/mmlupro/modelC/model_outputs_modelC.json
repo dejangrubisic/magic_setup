@@ -1,0 +1,42 @@
+[
+ {
+  "question_id": "100",
+  "question": "q1",
+  "options": "['a', 'b', 'c', 'd']",
+  "answer": "A",
+  "answer_index": "0",
+  "category": "math",
+  "pred": "A",
+  "model_outputs": "The answer is (A)."
+ },
+ {
+  "question_id": "101",
+  "question": "q2",
+  "options": "['a', 'b', 'c', 'd']",
+  "answer": "B",
+  "answer_index": "1",
+  "category": "math",
+  "pred": "C",
+  "model_outputs": "The answer is (C)."
+ },
+ {
+  "question_id": "102",
+  "question": "q3",
+  "options": "['a', 'b', 'c', 'd']",
+  "answer": "C",
+  "answer_index": "2",
+  "category": "law",
+  "pred": "C",
+  "model_outputs": "The answer is (C)."
+ },
+ {
+  "question_id": "103",
+  "question": "not in the question table",
+  "options": "['a', 'b', 'c', 'd']",
+  "answer": "C",
+  "answer_index": "2",
+  "category": "law",
+  "pred": null,
+  "model_outputs": "x"
+ }
+]
