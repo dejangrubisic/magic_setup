@@ -1,0 +1,33 @@
+MisconceptionId,MisconceptionName
+0,Does not know that angles in a triangle sum to 180 degrees
+1,Uses dividing fractions method for multiplying fractions
+2,Believes there are 100 degrees in a full turn
+3,"Thinks a quadratic without a non variable term, can not be factorised"
+4,Believes addition of terms and powers of terms are equivalent e.g. a + c = a^c
+5,"When measuring a reflex angle, gives the acute or obtuse angle that sums to 360 instead"
+6,Can identify the multiplier used to form an equivalent fraction but does not apply to the numerator
+7,Believes gradient = change in y
+8,Student thinks that any two angles along a straight line are equal
+9,Thinks there are 180 degrees in a full turn
+10,"Believes duration can be read from a timetable, rather than calculating from start and end times"
+11,"When reading value from graph, reads from the wrong axes."
+12,Thinks that the side view does not include the furthest rows back
+13,"Does not subtract from the hours, when having to borrow for a time calculation"
+14,Does not understand how to create a multiple of an equation
+143,"Thinks that when you cancel identical terms from the numerator and denominator, they just disappear"
+329,Does not understand a percentage is out of 100
+686,Does not know units of area should be squared
+847,Thinks they can convert a 2 digit percentage to a fraction by writing one number over the other.
+907,Does not find a common denominator when adding/subtracting fractions
+1073,Believes if you add the same value to all numbers in the dataset the range will change
+1180,Does not know the properties of a rectangle
+1234,Believes f(x + a) translates the function up a units
+1287,Believes if you changed all values by the same proportion the range would not change
+1312,Believes f(x) + a translates the function right a units
+1514,Adds instead of subtracts
+1889,Believes f(x - a) translates the function up a units
+2123,Divided by 100 rather than 10
+2133,"When dividing a decimal by a multiple of 10, just divides the fractional place values "
+2142,"Does not know that to factorise a quadratic expression, to find two numbers that add to give the coefficient of the x term, and multiply to give the non variable term
+"
+2273,Subtracts instead of divides

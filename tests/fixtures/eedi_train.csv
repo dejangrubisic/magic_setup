@@ -1,0 +1,57 @@
+QuestionId,ConstructId,ConstructName,SubjectId,SubjectName,CorrectAnswer,QuestionText,AnswerAText,AnswerBText,AnswerCText,AnswerDText,MisconceptionAId,MisconceptionBId,MisconceptionCId,MisconceptionDId
+1,1612,Simplify an algebraic fraction by factorising the numerator,1077,Simplifying Algebraic Fractions,D,"Simplify the following, if possible: \( \frac{m^{2}+2 m-3}{m-3} \)",\( m+1 \),\( m+2 \),\( m-1 \),Does not simplify,2142.0,143.0,2142.0,
+2,2774,Calculate the range from a list of data,339,Range and Interquartile Range from a List of Data,B,"Tom and Katie are discussing the \( 5 \) plants with these heights:
+\( 24 \mathrm{~cm}, 17 \mathrm{~cm}, 42 \mathrm{~cm}, 26 \mathrm{~cm}, 13 \mathrm{~cm} \)
+Tom says if all the plants were cut in half, the range wouldn't change.
+Katie says if all the plants grew by \( 3 \mathrm{~cm} \) each, the range wouldn't change.
+Who do you agree with?","Only
+Tom","Only
+Katie",Both Tom and Katie,Neither is correct,1287.0,,1287.0,1073.0
+3,2377,Recall and use the intersecting diagonals properties of a rectangle,88,Properties of Quadrilaterals,C,The angles highlighted on this rectangle with different length sides can never be... ![A rectangle with the diagonals drawn in. The angle on the right hand side at the centre is highlighted in red and the angle at the bottom at the centre is highlighted in yellow.](),acute,obtuse,\( 90^{\circ} \),Not enough information,1180.0,1180.0,,1180.0
+5,2052,Identify a unit of area,75,Area of Simple Shapes,D,"James has answered a question on the area of a trapezium and got an answer of \( 54 \).
+
+Behind the star he has written the units that he used.
+
+\(
+54 \, \bigstar
+\)
+
+Which of the following units could be correct?",\( m \),\( \mathrm{cm} \),\( \mathrm{km}^{3} \),\( \mathrm{mm}^{2} \),686.0,686.0,686.0,
+6,376,Convert two digit integer percentages to fractions,238,Converting between Fractions and Percentages,B,"Convert this percentage to a fraction
+\( 62 \% \)",\( \frac{62}{10} \),\( \frac{31}{50} \),\( \frac{6}{2} \),None of these,329.0,,847.0,329.0
+7,314,Divide decimals by 10,224,Multiplying and Dividing with Decimals,A,\( 43.2 \div 10= \),\( 4.32 \),\( 0.432 \),\( 33.2 \),\( 43.02 \),,2123.0,2273.0,2133.0
+8,435,Subtract proper fractions with different denominators which do not share a common factor,230,Adding and Subtracting Fractions,A,"\(
+\frac{4}{5}-\frac{1}{3}=\frac{\bigstar}{15}
+\)
+What should replace the star?",\( 7 \),\( 5 \),\( 17 \),\( 3 \),,907.0,1514.0,907.0
+9,1321,Identify horizontal translations in the form f(x) = for non-trigonometric functions,164,Transformations of functions in the form f(x),C,"What transformation maps the graph of
+\(y=f(x)
+\)
+to the graph of
+\(
+y=f(x-3)
+\)","Translation by vector
+\(
+\left[\begin{array}{l}
+0 \\
+3
+\end{array}\right]
+\)","Translation by vector
+\(
+\left[\begin{array}{c}
+0 \\
+-3
+\end{array}\right]
+\)","Translation by vector
+\(
+\left[\begin{array}{l}
+3 \\
+0
+\end{array}\right]
+\)","Translation by vector
+\(
+\left[\begin{array}{r}
+-3 \\
+0
+\end{array}\right]
+\)",1889.0,1234.0,,1312.0

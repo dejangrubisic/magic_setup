@@ -81,6 +81,7 @@ ignore = [
 # ---------------------------------------------------------------- pytest
 [tool.pytest]
 testpaths = ["tests"]
+pythonpath = ["."]  # makes tasks/ importable from tests; scripts run as `python -m scripts.<name>`
 strict = true
 addopts = ["--tb=short", "--import-mode=importlib", "-ra"]
 markers = [
