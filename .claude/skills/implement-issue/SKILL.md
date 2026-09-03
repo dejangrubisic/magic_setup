@@ -38,7 +38,10 @@ Work in the issue's own worktree. One issue, one branch, one PR. Stop and ask a 
    (`gh pr view --comments`), fix, push. No `VERDICT:` comment at all means the run died (auth, turns):
    `gh run rerun --failed` once. After three review rounds, stop: label `needs-human` and report.
    Only a human may override a verdict (`gh pr merge --admin`), and they log why in `dev/LOG.md`.
-9. **Merge.** `gh pr merge --auto --squash`, then poll `gh pr view --json state,mergedAt` until merged.
+9. **Merge.** Only after `gh pr checks --watch --fail-fast` exits 0 (every check green, including
+   `review`): `gh pr merge --auto --squash` (if auto-merge is unavailable on this repo, plain
+   `gh pr merge --squash`), then poll `gh pr view --json state,mergedAt` until merged. Never merge
+   with a red or pending check; if branch protection is absent, this step is the gate.
 10. **Clean.** `cd` back to the main checkout, `make wt-rm I=$ARGUMENTS`. If the issue produced an
     experimental result, append a dated entry to `dev/LOG.md` (in its own tiny PR or the same one if
     the issue asked for it).

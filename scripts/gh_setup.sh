@@ -40,11 +40,20 @@ ruleset=$(cat <<'JSON'
 }
 JSON
 )
-existing=$(gh api "repos/$repo/rulesets" --jq '.[] | select(.name=="main") | .id' 2>/dev/null || true)
-if [[ -n "$existing" ]]; then
-  printf '%s' "$ruleset" | gh api --method PUT "repos/$repo/rulesets/$existing" --input - >/dev/null && echo "ruleset updated"
+if list=$(gh api "repos/$repo/rulesets" 2>/dev/null); then
+  existing=$(printf '%s' "$list" | jq -r '.[] | select(.name=="main") | .id')
+  if [[ -n "$existing" ]]; then
+    printf '%s' "$ruleset" | gh api --method PUT "repos/$repo/rulesets/$existing" --input - >/dev/null && echo "ruleset updated"
+  else
+    printf '%s' "$ruleset" | gh api --method POST "repos/$repo/rulesets" --input - >/dev/null && echo "ruleset created"
+  fi
 else
-  printf '%s' "$ruleset" | gh api --method POST "repos/$repo/rulesets" --input - >/dev/null && echo "ruleset created"
+  cat <<MSG
+NO RULESET: GitHub does not allow branch rulesets on private repos of free accounts.
+  Either make the repo public (gh repo edit --visibility public --accept-visibility-change-consequences)
+  and re-run make gh-setup, or rely on the implement-issue skill's gate: agents merge only after
+  \`gh pr checks --watch --fail-fast\` succeeds (no server-side enforcement, no auto-merge).
+MSG
 fi
 
 # Reviewer auth secret
