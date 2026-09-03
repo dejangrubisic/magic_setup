@@ -1,6 +1,6 @@
 ---
 name: plan-issues
-description: Turn a task description into a GitHub epic with ordered, parallelisable sub-issues that agents can implement without asking questions. Run together with the human before any code is written.
+description: Turn a task description into a GitHub epic with ordered, parallelisable sub-issues, then fan out one implement-issue agent per ready issue. Run together with the human before any code is written.
 disable-model-invocation: true
 ---
 # Plan issues for: $ARGUMENTS
@@ -28,12 +28,19 @@ an issue becomes hundreds of bad lines of code.
    - Without GitHub (offline), an issue is a markdown file with the same five fields:
      `## Goal`, `## Acceptance criteria`, `## Out of scope`, `## Files expected to change`, `## Depends on`.
 3. **Review with the human.** Show the plan as a table (number, title, depends-on, files, one-line
-   AC). Iterate until approved. Ask a fresh `reviewer` subagent to poke holes (ambiguity, missing
+   AC). Iterate until approved. Ask a fresh agent to poke holes (ambiguity, missing
    criteria, hidden shared files) before the human sees it.
 4. **Create.** `gh issue create --label epic ...` for the epic, then each task with
    `gh issue create --label task --title ... --body-file ...` (the number is the tail of the printed
    URL: `| grep -oE '[0-9]+$'`). Link sub-issues:
    `gh api -X POST repos/{owner}/{repo}/issues/<epic>/sub_issues -F sub_issue_id=$(gh api repos/{owner}/{repo}/issues/<task> --jq .id)`.
    Post the dependency order and the parallel waves in the epic body.
-5. **Hand off.** Print the ready queue (open issues whose dependencies are closed), grouped into
-   waves that can run concurrently. Then `/run-issues <epic>`.
+5. **Run.** Ready set = open issues, not `blocked`/`needs-human`, dependencies closed, files disjoint
+   from issues in flight. For each ready issue (at most three at a time) start a background agent whose
+   whole prompt is: "Follow `.claude/skills/implement-issue/SKILL.md` for issue #N. Keep scratch files
+   inside your worktree. Report the PR URL and the final verdict." When one finishes, record it in a
+   status table (issue, PR, review rounds, state), recompute the ready set, launch the next. Escalate
+   `needs-human` stops immediately and keep the others running; never touch an in-flight worktree. On a
+   rate limit (`make review` exit 3 prints the reset time) stop launching and resume from the worktrees
+   after the reset. When nothing is ready or in flight: post the status table on the epic and close it
+   if every sub-issue is closed.

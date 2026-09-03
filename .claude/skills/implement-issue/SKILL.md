@@ -25,8 +25,7 @@ Work in the issue's own worktree. One issue, one branch, one PR. Stop and ask a 
 5. **Green.** `make lint && make test`. Fix root causes; never skip, weaken or delete tests.
    Commit after each green run with a message that says why, and confirm with `git log -1` (an
    auto-fix hook can fail the commit silently).
-6. **Fresh-context review.** Run `make review BRANCH=issue-$ARGUMENTS ISSUE=$ARGUMENTS` (or ask the
-   `reviewer` subagent). It reviews a pristine checkout of your branch, so keep working meanwhile. Fix
+6. **Fresh-context review.** Run `make review BRANCH=issue-$ARGUMENTS ISSUE=$ARGUMENTS`. It reviews a pristine checkout of your branch, so keep working meanwhile. Fix
    every blocking finding; re-run until `VERDICT: APPROVE` (`make` exits 2 on any failure; the verdict
    JSON is in `runs/reviews/`). While a review runs you may start a dependent issue from this branch;
    before *its* review, once this one has merged, `git rebase --onto origin/main issue-$ARGUMENTS` and

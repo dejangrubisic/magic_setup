@@ -1,7 +1,9 @@
-"""Uncertainty helpers: bootstrap and Wilson intervals. Small n gives wide, honest intervals."""
+"""Stats and reproducibility: bootstrap/Wilson intervals, hash-stable splits, seeding."""
 
 from __future__ import annotations
 
+import random
+import zlib
 from collections.abc import Callable
 
 import numpy as np
@@ -54,3 +56,22 @@ def hit_at_k(ranks, k: int) -> float:
     """Fraction of items whose true answer rank (1-based; None/0 = absent) is <= k."""
     r = list(ranks)
     return float(np.mean([x is not None and 0 < x <= k for x in r])) if r else float("nan")
+
+
+def stable_split(uid: str, test_pct: int = 20, salt: str = "v1") -> str:
+    """Assign a uid to "train"/"test" by hash, so other rows appearing never move it."""
+    bucket = zlib.crc32(f"{salt}:{uid}".encode()) % 100
+    return "test" if bucket < test_pct else "train"
+
+
+def seed_everything(seed: int) -> None:
+    """Seed random and numpy (and torch if installed); does not touch cuDNN determinism."""
+    random.seed(seed)
+    np.random.seed(seed)
+    try:
+        import torch
+    except ImportError:
+        return
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)

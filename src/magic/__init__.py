@@ -4,8 +4,14 @@ from magic.io import ensure_dir, fetch_hf, iter_jsonl, nan_to_none, read_jsonl, 
 from magic.llm import complete, complete_many
 from magic.results import by_slice, ci_by_group, load_runs, to_markdown
 from magic.runs import RunDir
-from magic.splits import seed_everything, stable_split
-from magic.stats import bootstrap_ci, hit_at_k, paired_bootstrap_diff, wilson_interval
+from magic.stats import (
+    bootstrap_ci,
+    hit_at_k,
+    paired_bootstrap_diff,
+    seed_everything,
+    stable_split,
+    wilson_interval,
+)
 
 __all__ = [
     "RunDir",

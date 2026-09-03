@@ -1,19 +1,19 @@
 @CONTRIBUTING.md
 
 ## Commands
-| `make doctor` | what is missing before work can start | | `make install` | once per clone: env + git hooks | | `make lint` | format check + lint + lock check |
+| `make install` | once per clone: env + git hooks | | `make lint` | format check + lint + lock check |
 | `make test` | fast parallel tests | | `make check` | lint + test (what CI runs) |
 | `make wt I=N` / `make wt-rm I=N` | worktree for issue N / remove it | | `make review BRANCH=issue-N ISSUE=N` | local CI-agent review |
 | `uv run pytest tests/test_x.py::test_y -x` | one test | | `uv add <pkg>` | add a dependency (re-locks) |
 
 ## Workflow skills
-`/plan-issues <task>` -> `/run-issues <epic>` (fans out `/implement-issue N` agents) -> `/review-pr N`.
-Use the `reviewer` subagent before every PR. Read the skill file before acting on one.
+`/plan-issues <task>` (plan, create, then fan out `/implement-issue N` agents) -> `/review-pr N`.
+Run `make review` before every PR. Read the skill file before acting on one.
 
 ## Gotchas
-- Python files are auto-formatted by a hook after every edit: re-read before editing again, and do
-  not rely on `# noqa` or import order surviving. Task code goes in `src/magic/tasks/<name>.py`
-  (importable everywhere); `scripts/` and `tasks/` at the repo root are not on `sys.path`.
+- Task code goes in `src/magic/tasks/<name>.py` (importable everywhere); `scripts/` at the repo
+  root is not on `sys.path`. Run `make format` before committing; the pre-commit hook fixes and
+  then fails the commit if it had to change anything.
 - A pre-commit auto-fix (whitespace, ruff) fails the commit and leaves it un-made: re-run `git commit`
   and check `git log -1` before `make review`; the review script refuses empty diffs and dirty trees.
 - Branch every issue from `origin/main`, never from another issue branch; if it depends on one, wait
