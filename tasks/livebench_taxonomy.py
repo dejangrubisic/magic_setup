@@ -8,6 +8,7 @@ from tasks.livebench import extract_answer, score_answer
 
 CLASSES = ("correct", "wrong_answer", "format_failure", "truncation", "no_answer")
 _TERMINATORS = (".", "!", "?", "*", ">", "`")
+MIN_TRUNCATION_CHARS = 200  # shorter unterminated texts are bare answers, not cut-off responses
 
 
 def classify(text: str, ground_truth: str, task: str) -> str:
@@ -19,7 +20,7 @@ def classify(text: str, ground_truth: str, task: str) -> str:
     if strict is not None:
         return "wrong_answer"
     stripped = text.strip()
-    if not stripped or not stripped.endswith(_TERMINATORS):
+    if not stripped.endswith(_TERMINATORS) and len(stripped) >= MIN_TRUNCATION_CHARS:
         return "truncation"
     if extract_answer(text, task, "lenient") is not None:
         return "format_failure"

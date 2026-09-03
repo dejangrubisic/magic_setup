@@ -36,7 +36,14 @@ def test_load_reasoning_joins_and_filters(frame):
     [
         ("so **4** pieces. Answer **5**", "spatial", "5", "5"),
         ("I think it is 4 pieces.\nSo 4.", "spatial", None, "4"),
-        ("it is **four** pieces", "spatial", None, "four"),
+        ("it is **four** pieces", "spatial", "four", "four"),
+        ("the shape is **square**", "spatial", "square", "square"),
+        ("**4**\n\n**Explanation:** three cuts.", "spatial", "4", "4"),
+        ("**Answer:** 4", "spatial", None, "4"),
+        ("**Answer: **4**", "spatial", None, "4"),
+        ("** ** nothing", "spatial", None, None),
+        ("it is a **cube**, i.e. **6** faces", "spatial", "6", "6"),
+        ("so 4 pieces.", "spatial", None, "4"),
         ("it is many pieces.", "spatial", None, None),
         ("nobody lies.", "web_of_lies_v2", None, None),
         ("**yes, no, yes**.", "web_of_lies_v2", "yes, no, yes", "yes, no, yes"),
@@ -77,6 +84,7 @@ def test_extract_answer_rejects_bad_args():
 def test_score_answer():
     assert score_answer("**4**", "4", "spatial") == 1.0
     assert score_answer("**5**", "4", "spatial") == 0.0
+    assert score_answer("**Square Pyramid**", "square pyramid", "spatial") == 1.0
     assert score_answer("so 4.", "4", "spatial", "strict") == 0.0
     assert score_answer("so 4.", "4", "spatial", "lenient") == 1.0
     assert score_answer("**Yes, No, YES**", "yes, no, yes", "web_of_lies_v2") == 1.0

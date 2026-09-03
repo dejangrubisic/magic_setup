@@ -2,7 +2,7 @@
 
 The public `model_judgment` table has no reasoning rows, so scores are re-derived here from
 `model_answer` + `reasoning.ground_truth` following the LiveBench answer formats:
-spatial -> **<int>**, web_of_lies_v2 -> **yes, no, yes**, zebra_puzzle -> ***answer*** (the questions
+spatial -> **<int or shape name>**, web_of_lies_v2 -> **yes, no, yes**, zebra_puzzle -> ***answer*** (the questions
 in the public answer table are the single-answer, triple-bold generation of the task).
 """
 
@@ -76,8 +76,12 @@ def extract_answer(text: str, task: str, mode: str = "strict") -> str | None:
     triples = _TRIPLE_BOLD.findall(text)
     if task == "zebra_puzzle":
         strict = triples[-1].strip() if triples else None
-    elif task == "spatial":
-        strict = next((b for b in reversed(bolds) if _INT.fullmatch(b.strip())), None)
+    elif (
+        task == "spatial"
+    ):  # last bold integer, else last bold shape name; labels (**Answer:**) skipped
+        spans = [b.strip() for b in bolds if b.strip() and not b.strip().endswith(":")]
+        ints = [b for b in spans if _INT.fullmatch(b)]
+        strict = ints[-1] if ints else (spans[-1] if spans else None)
     else:  # web_of_lies_v2
         strict = next((b for b in reversed(bolds) if _YESNO_LIST.fullmatch(b.strip())), None)
     if strict is not None or mode == "strict":
@@ -90,8 +94,9 @@ def extract_answer(text: str, task: str, mode: str = "strict") -> str | None:
         hits = [m.group(0) for m in _YESNO_LIST.finditer(text)]
         if hits:
             return hits[-1]
-    if bolds:
-        return bolds[-1].strip()
+    spans = [b.strip() for b in bolds if b.strip()]
+    if spans:
+        return spans[-1]
     if task != "zebra_puzzle":  # integer / yes-no answers cannot hide in prose
         return None
     lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
