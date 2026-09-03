@@ -24,7 +24,9 @@ Work in the issue's own worktree. One issue, one branch, one PR. Stop and ask a 
    then `gh pr create --title "<type>: <what> (#$ARGUMENTS)" --body-file <file>` using the PR
    template: `Closes #$ARGUMENTS`, what/why, and a Testing section with pasted command output.
 8. **CI.** `gh pr checks --watch`. If `review` fails, read the reviewer's `VERDICT:` comment
-   (`gh pr view --comments`), fix, push. After three review rounds, stop: label `needs-human` and report.
+   (`gh pr view --comments`), fix, push. No `VERDICT:` comment at all means the run died (auth, turns):
+   `gh run rerun --failed` once. After three review rounds, stop: label `needs-human` and report.
+   Only a human may override a verdict (`gh pr merge --admin`), and they log why in `dev/LOG.md`.
 9. **Merge.** `gh pr merge --auto --squash`, then poll `gh pr view --json state,mergedAt` until merged.
 10. **Clean.** `cd` back to the main checkout, `make wt-rm I=$ARGUMENTS`. If the issue produced an
     experimental result, append a dated entry to `dev/LOG.md` (in its own tiny PR or the same one if

@@ -24,7 +24,8 @@ an issue becomes hundreds of bad lines of code.
    AC). Iterate until approved. Ask a fresh `reviewer` subagent to poke holes (ambiguity, missing
    criteria, hidden shared files) before the human sees it.
 4. **Create.** `gh issue create --label epic ...` for the epic, then each task with
-   `gh issue create --label task --title ... --body-file ...`. Link sub-issues:
+   `gh issue create --label task --title ... --body-file ...` (the number is the tail of the printed
+   URL: `| grep -oE '[0-9]+$'`). Link sub-issues:
    `gh api -X POST repos/{owner}/{repo}/issues/<epic>/sub_issues -F sub_issue_id=$(gh api repos/{owner}/{repo}/issues/<task> --jq .id)`.
    Post the dependency order and the parallel waves in the epic body.
 5. **Hand off.** Print the ready queue (open issues whose dependencies are closed), grouped into

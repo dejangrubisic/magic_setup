@@ -22,7 +22,7 @@ schema='{"type":"object","required":["verdict","obligations","blocking"],"proper
 
 out=$("$CLAUDE" -p "Read .claude/skills/review-pr/SKILL.md and follow its procedure exactly. Arguments: $args. This is a LOCAL pre-PR review: do not post anything to GitHub; put the summary in your final answer and return the JSON described by the schema." \
   --output-format json --json-schema "$schema" --max-turns 40 \
-  --allowedTools "Read,Glob,Grep,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git fetch:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh issue view:*),Bash(make test),Bash(make lint),Bash(uv run pytest:*)" \
+  --allowedTools "Read,Glob,Grep,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git fetch:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh issue view:*),Bash(make test),Bash(make lint),Bash(uv run pytest:*),Bash(scripts/tests_on_base.sh:*)" \
   2>/dev/null)
 verdict_json=$(printf '%s' "$out" | python3 -c 'import json,sys
 d=json.load(sys.stdin)

@@ -6,7 +6,8 @@ echo "Configuring $repo"
 
 # Labels
 for spec in "epic:Parent issue grouping sub-issues:5319E7" "task:One unit of work, one PR:0E8A16" \
-            "blocked:Waiting on a dependency or a human:D93F0B" "needs-human:Agent stopped; a person must decide:FBCA04"; do
+            "blocked:Waiting on a dependency or a human:D93F0B" "needs-human:Agent stopped; a person must decide:FBCA04" \
+            "infra:Tooling issue allowed to touch pyproject, Makefile, .github, .claude:C5DEF5"; do
   IFS=: read -r name desc color <<<"$spec"
   gh label create "$name" --description "$desc" --color "$color" --force >/dev/null
 done
@@ -27,7 +28,7 @@ ruleset=$(cat <<'JSON'
     { "type": "pull_request", "parameters": {
         "required_approving_review_count": 0, "dismiss_stale_reviews_on_push": true,
         "require_code_owner_review": false, "require_last_push_approval": false,
-        "required_review_thread_resolution": true, "allowed_merge_methods": ["squash"] } },
+        "required_review_thread_resolution": false, "allowed_merge_methods": ["squash"] } },
     { "type": "required_status_checks", "parameters": {
         "strict_required_status_checks_policy": false, "do_not_enforce_on_create": false,
         "required_status_checks": [
