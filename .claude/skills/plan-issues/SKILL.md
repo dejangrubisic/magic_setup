@@ -28,7 +28,7 @@ an issue becomes hundreds of bad lines of code.
    - Without GitHub (offline), an issue is a markdown file with the same five fields:
      `## Goal`, `## Acceptance criteria`, `## Out of scope`, `## Files expected to change`, `## Depends on`.
 3. **Review with the human.** Show the plan as a table (number, title, depends-on, files, one-line
-   AC). Iterate until approved. Ask a fresh `reviewer` subagent to poke holes (ambiguity, missing
+   AC). Iterate until approved. Ask a fresh agent to poke holes (ambiguity, missing
    criteria, hidden shared files) before the human sees it.
 4. **Create.** `gh issue create --label epic ...` for the epic, then each task with
    `gh issue create --label task --title ... --body-file ...` (the number is the tail of the printed
