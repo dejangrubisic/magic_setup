@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+build/
+dist/
+
+# Tooling caches
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.hypothesis/
+.cache/
+
+# Data and experiment outputs (never commit data; commit small result tables only via results/)
+data/
+!data/.gitkeep
+runs/
+*.parquet
+*.csv
+*.jsonl
+!tests/fixtures/*.jsonl
+!tests/fixtures/*.csv
+
+# Secrets and local settings
+.env
+.env.*
+.claude/settings.local.json
+.kaggle/
+
+# Parallel-agent git worktrees live outside the repo tree, but guard anyway
+.worktrees/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+*.swp
