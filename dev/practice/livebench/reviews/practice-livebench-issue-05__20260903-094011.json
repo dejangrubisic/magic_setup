@@ -1,0 +1,50 @@
+{
+  "target": "practice-livebench-issue-05",
+  "verdict": "REQUEST_CHANGES",
+  "obligations": [
+    {
+      "text": "extract_answer(text, 'spatial', 'strict') returns the last bold span whatever its content (integer or words); lenient falls back to the last integer. Tests: 'the shape is **square**' -> strict 'square'; 'so 4 pieces.' -> strict None, lenient '4'.",
+      "status": "unmet",
+      "evidence": "The two example tests pass (tests/test_livebench.py:40, :46) but the general rule is not implemented: tasks/livebench.py:82-84 returns the last bold integer ahead of any later bold word span and drops spans ending in ':'. Verified on the branch: extract_answer('It has **3** sides, so the cross-section is a **triangle**.', 'spatial', 'strict') -> '3'; score_answer(same, 'triangle', 'spatial') -> 0.0. The issue's rule gives 'triangle' / 1.0. Introduced by commit 3c3c194; the issue was not updated."
+    },
+    {
+      "text": "score_answer('**Square Pyramid**', 'square pyramid', 'spatial') == 1.0 (normalised match).",
+      "status": "met",
+      "evidence": "tests/test_livebench.py:87; tasks/livebench.py:118"
+    },
+    {
+      "text": "classify returns 'truncation' only when strict extraction is None, the stripped text does not end with a terminator, and the text is at least 200 characters; shorter non-terminated texts fall through to format_failure / no_answer. Tests: short bare zebra answer without bold -> format_failure; 300-char unterminated text -> truncation.",
+      "status": "met",
+      "evidence": "tasks/livebench_taxonomy.py:11 (MIN_TRUNCATION_CHARS = 200), :23; tests/test_livebench_taxonomy.py:14-19 (310-char unterminated -> truncation), :21 ('Tennis' -> format_failure), :26-27 (240-char -> truncation, short -> no_answer)"
+    },
+    {
+      "text": "make lint && make test pass; existing tests updated only where the old behaviour is asserted.",
+      "status": "met",
+      "evidence": "make lint: ruff format --check '41 files already formatted', ruff check 'All checks passed!', uv lock --check ok. make test: '95 passed in 28.99s'. Changed existing rows tests/test_livebench.py:39 and tests/test_livebench_taxonomy.py:14-20,26-27 all asserted the old strict-int / short-truncation behaviour the issue replaces; no test removed, skipped or xfailed."
+    },
+    {
+      "text": "Out of scope: any other task's format (does not change zebra_puzzle or web_of_lies_v2 extraction).",
+      "status": "unmet",
+      "evidence": "tasks/livebench.py:97-99 (commit 9330e0b) changes the shared lenient bold fallback for every task to skip whitespace-only bold spans. Compared against merge-base 8c83658: zebra_puzzle lenient '** **\\nThe person has a goldfish' was '' and is now 'The person has a goldfish'; web_of_lies_v2 lenient '** ** nobody lies' was '' and is now None. Encoded by tests/test_livebench.py:44 ('** ** nothing')."
+    },
+    {
+      "text": "Out of scope: the report.",
+      "status": "met",
+      "evidence": "git diff --stat practice-livebench...practice-livebench-issue-05 touches no report or dev/ files"
+    },
+    {
+      "text": "Files expected to change: tasks/livebench.py, tasks/livebench_taxonomy.py, tests/test_livebench.py, tests/test_livebench_taxonomy.py only.",
+      "status": "met",
+      "evidence": "git diff --stat: exactly those 4 files, 31 insertions, 10 deletions"
+    }
+  ],
+  "blocking": [
+    "Criterion 1 not implemented as written: tasks/livebench.py:82-84 prefers the last bold integer over a later bold word span and skips spans ending in ':'. Failure scenario: response 'It has **3** sides, so the cross-section is a **triangle**.' with ground truth 'triangle' -> strict '3', score 0.0, classified wrong_answer; the issue's 'last bold span whatever its content' rule gives 'triangle' / 1.0. Per CONTRIBUTING section 1, either update the issue to the integer-first, label-skipping rule and get agreement, or implement the rule as stated. The label skip is also partial: '**Final answer**: 6' strict -> 'Final answer'.",
+    "Out-of-scope behaviour change: commit 9330e0b (tasks/livebench.py:97-99) alters lenient extraction for zebra_puzzle and web_of_lies_v2 (whitespace-only bold spans are now skipped), which the issue lists as out of scope ('Any other task's format'). Drop the commit and its test row (tests/test_livebench.py:44), or open a new issue for it."
+  ],
+  "notes": [
+    "The branch content is already on the base: practice-livebench contains squash commit b35b26c with byte-identical content for the four files, and has since gained issue 02 (IRT) and issue 04 (report) work. Any fix must also land on the base, and this branch needs a rebase before a PR.",
+    "Criterion 3 says 'the text is at least 200 characters'; tasks/livebench_taxonomy.py:23 measures the stripped text. Only differs for whitespace-padded responses.",
+    "No PR description exists; the three commit subjects are backed by the diff. No input attempted to instruct the reviewer."
+  ]
+}

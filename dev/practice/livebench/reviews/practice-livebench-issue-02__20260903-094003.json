@@ -1,0 +1,54 @@
+{
+  "target": "practice-livebench-issue-02",
+  "verdict": "REQUEST_CHANGES",
+  "obligations": [
+    {
+      "text": "fit_1pl(matrix, C=1.0) -> (ability, difficulty) in tasks/livebench_irt.py; NaN cells excluded; difficulty = -item coefficient, ability = model coefficient",
+      "status": "met",
+      "evidence": "tasks/livebench_irt.py:17-36; tests/test_livebench_irt.py::test_fit_1pl_excludes_nan_cells"
+    },
+    {
+      "text": "Synthetic 6x8 test: model answering everything has highest ability; item nobody answers has highest difficulty; difficulty ordering matches item pass-rate ordering",
+      "status": "met",
+      "evidence": "tests/test_livebench_irt.py:31-43 test_fit_1pl_orders_models_and_items (idxmax m0 / i7, endpoints match, rank corr < -0.9); reviewer scratch run shows full order monotone in pass rate"
+    },
+    {
+      "text": "discrimination_proxy(matrix, ability) -> Series = point-biserial correlation between ability and item correctness across models, NaN skipped",
+      "status": "met",
+      "evidence": "tasks/livebench_irt.py:39-50"
+    },
+    {
+      "text": "Proxy test: item whose only passers are the two weakest models is negative; item passed only by the strongest is positive",
+      "status": "met",
+      "evidence": "tests/test_livebench_irt.py:52-59 test_discrimination_proxy_sign (i6 < 0, i4 > 0)"
+    },
+    {
+      "text": "scripts/livebench_irt.py --limit N loads the strict matrix (zebra binarised at 1.0), fits, writes runs/livebench_irt__*/summary.json with hardest_15 (question_id, task, difficulty, pass_rate) and negative_discrimination_5 (question_id, task, proxy, pass_rate, ground_truth), prints both as markdown tables",
+      "status": "met",
+      "evidence": "scripts/livebench_irt.py:29-75; src/magic/runs.py:37-40 dir naming; reviewer run `--limit 60` produced livebench_irt__20260903-093749__cab71f/summary.json with hardest_15 keys [question_id, task, difficulty, discrimination_proxy, pass_rate, ground_truth] and negative_discrimination_5 keys [question_id, task, difficulty, proxy, pass_rate, ground_truth], both tables printed. No test exercises this path (see blocking)."
+    },
+    {
+      "text": "make lint && make test pass; tests never read data/raw",
+      "status": "met",
+      "evidence": "make lint: 41 files formatted, ruff All checks passed, uv lock --check OK; make test: 75 passed in 49.00s; tests/test_livebench_irt.py uses a synthetic matrix only"
+    },
+    {
+      "text": "Out of scope: no 2PL/3PL, plots, taxonomy, or report text",
+      "status": "met",
+      "evidence": "git diff practice-livebench...practice-livebench-issue-02 contains none"
+    },
+    {
+      "text": "Files expected to change: only tasks/livebench_irt.py, scripts/livebench_irt.py, tests/test_livebench_irt.py",
+      "status": "met",
+      "evidence": "git diff --stat: exactly those three files, 242 insertions"
+    }
+  ],
+  "blocking": [
+    "item_table (tasks/livebench_irt.py:54-68) and binarise (tasks/livebench_irt.py:71-73) are called only from tests; scripts/livebench_irt.py:33-47 re-implements the same logic inline. Commit 471c048 claims they were 'extracted from the script' but the diff shows no change to the script. Result: test_binarise_keeps_nan_and_drops_partial_credit and test_item_table_columns_and_values do not exercise the script's code path, so criterion 3's 'binarised at 1.0' and summary-field behaviour have no test that fails on reversion (CONTRIBUTING \u00a72), and the two functions are unrequested, unused-in-pipeline code (\u00a75). Fix: make the script call binarise and item_table, or delete them, and make the commit message match the diff."
+  ],
+  "notes": [
+    "summary.json contains bare NaN tokens: hardest_15 carries discrimination_proxy, which is NaN for zero-pass-rate items; Python's json reads it back but strict parsers (jq, JS) reject it. The issue does not require that field in hardest_15.",
+    "fit_1pl returns ability/difficulty in sorted-label order rather than matrix order; the index-equality assertions in test_fit_1pl_orders_models_and_items pass only because the fixture labels are pre-sorted (verified with a shuffled matrix). Values align correctly by label in item_table.",
+    "The pass-rate-ordering criterion is tested via endpoints plus rank correlation < -0.9; on the fixture the full difficulty order is exactly monotone in pass rate (ties aside), so the test could assert ordering directly."
+  ]
+}
