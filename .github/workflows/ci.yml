@@ -54,8 +54,9 @@ jobs:
             || { echo '::error::PR body must contain "Closes #<issue-number>" (one issue per PR)'; exit 1; }
 
   review:
-    # Drafts are not reviewed (they cannot be merged anyway); mark the PR ready after a local APPROVE.
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    # Always runs on PRs. A skipped required check counts as passing, so drafts FAIL here instead
+    # of being skipped; `gh pr ready` after a local APPROVE triggers the real review.
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
@@ -67,6 +68,11 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CI: "true"
     steps:
+      - name: Drafts are not reviewed
+        if: github.event.pull_request.draft == true
+        run: |
+          echo "::error::draft PR is not reviewed. Get a local 'make review' APPROVE, then 'gh pr ready'."
+          exit 1
       - uses: actions/checkout@v4
         with: { fetch-depth: 0, persist-credentials: false }
       - uses: astral-sh/setup-uv@v6
