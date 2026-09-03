@@ -37,6 +37,8 @@ def test_load_reasoning_joins_and_filters(frame):
         ("so **4** pieces. Answer **5**", "spatial", "5", "5"),
         ("I think it is 4 pieces.\nSo 4.", "spatial", None, "4"),
         ("it is **four** pieces", "spatial", None, "four"),
+        ("it is many pieces.", "spatial", None, None),
+        ("nobody lies.", "web_of_lies_v2", None, None),
         ("**yes, no, yes**.", "web_of_lies_v2", "yes, no, yes", "yes, no, yes"),
         ("**Answer: no, no, no**", "web_of_lies_v2", None, "no, no, no"),
         (

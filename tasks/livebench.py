@@ -65,7 +65,7 @@ def extract_answer(text: str, task: str, mode: str = "strict") -> str | None:
     """Extract the final answer string from a model response, or None if no answer is found.
 
     strict: the task's required format, last occurrence. lenient: strict, then fall back to the
-    last integer / yes-no list, the last bold span, and finally the last non-empty line.
+    last integer / yes-no list, the last bold span, and (zebra_puzzle only) the last non-empty line.
     """
     if mode not in MODES:
         raise ValueError(f"mode must be one of {MODES}, got {mode!r}")
@@ -92,6 +92,8 @@ def extract_answer(text: str, task: str, mode: str = "strict") -> str | None:
             return hits[-1]
     if bolds:
         return bolds[-1].strip()
+    if task != "zebra_puzzle":  # integer / yes-no answers cannot hide in prose
+        return None
     lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
     return lines[-1] if lines else None
 
