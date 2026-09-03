@@ -1,0 +1,4 @@
+{"question_id": "59979242f2437bc604ba87e9af3dd80878837a3ad01436d110fca1191f1dc0bb", "category": "reasoning", "task": "spatial", "ground_truth": "3"}
+{"question_id": "0daa7ca38beec4441b9d5c04d0b98912322926f0a3ac28a5097889d4ed83506f", "category": "reasoning", "task": "web_of_lies_v2", "ground_truth": "no, yes, yes"}
+{"question_id": "649bc05273222faa09351804333159f5c2eea29f37bb8b9364514365115b0dc9", "category": "reasoning", "task": "zebra_puzzle", "ground_truth": "2"}
+{"question_id": "no-gt", "category": "reasoning", "task": "spatial", "ground_truth": null}

@@ -81,6 +81,7 @@ ignore = [
 # ---------------------------------------------------------------- pytest
 [tool.pytest]
 testpaths = ["tests"]
+pythonpath = ["."]  # so tests can import tasks/<name>.py and scripts/
 strict = true
 addopts = ["--tb=short", "--import-mode=importlib", "-ra"]
 markers = [
