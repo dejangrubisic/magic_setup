@@ -22,4 +22,4 @@ auto-merge, ruleset requiring `lint`, `test`, `pr-links-issue`, `review`), the C
 - `src/magic/` has the utilities every such task needs: JSONL I/O, resumable run dirs, cached LLM
   calls, stable splits and seeds, bootstrap/Wilson intervals, results tables, three plots;
   `magic/tasks/example.py` and `scripts/example_stage.py` are the templates to copy.
-- `dev/LOG.md` is the experiment log; `LESSONS.md` is what the practice runs taught us.
+- `dev/LOG.md` is the experiment log.
