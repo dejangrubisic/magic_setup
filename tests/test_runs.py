@@ -50,3 +50,21 @@ def test_summary_is_the_completion_marker(tmp_path):
     assert run.config() is None
     run.write_summary({"accuracy": 0.75, "n": 4})
     assert RunDir(run.path).summary() == {"accuracy": 0.75, "n": 4}
+
+
+def test_opening_a_missing_run_dir_raises(tmp_path):
+    import pytest
+
+    from magic.runs import RunDir
+
+    with pytest.raises(FileNotFoundError):
+        RunDir(tmp_path / "typo")
+    assert RunDir(tmp_path / "ok", create=True).path.is_dir()
+
+
+def test_hit_at_k():
+    from magic.stats import hit_at_k
+
+    assert hit_at_k([1, 3, None, 30], 5) == 0.5
+    assert hit_at_k([1, 3, None, 30], 25) == 0.5
+    assert hit_at_k([], 5) != hit_at_k([], 5)  # NaN

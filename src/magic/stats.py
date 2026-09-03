@@ -48,3 +48,9 @@ def wilson_interval(k: int, n: int, z: float = 1.96) -> tuple[float, float, floa
     centre = (p + z**2 / (2 * n)) / denom
     half = z * np.sqrt(p * (1 - p) / n + z**2 / (4 * n**2)) / denom
     return p, float(centre - half), float(centre + half)
+
+
+def hit_at_k(ranks, k: int) -> float:
+    """Fraction of items whose true answer rank (1-based; None/0 = absent) is <= k."""
+    r = list(ranks)
+    return float(np.mean([x is not None and 0 < x <= k for x in r])) if r else float("nan")

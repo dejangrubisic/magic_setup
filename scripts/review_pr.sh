@@ -10,6 +10,11 @@
 # Exit 0 APPROVE, 1 REQUEST_CHANGES, 2 no verdict / precondition failure, 3 rate limit hit.
 # (`make review` maps every failure to exit 2: orchestrators should read runs/reviews/<target>__*.json.)
 set -uo pipefail
+# Bash reads scripts lazily: an edit to this file on the main checkout mid-run corrupts running reviews.
+# Re-exec from a private copy so in-flight reviews are immune.
+if [[ -z "${REVIEW_PR_COPY:-}" ]]; then
+  copy=$(mktemp) && cat "$0" > "$copy" && REVIEW_PR_COPY=1 exec bash "$copy" "$@"
+fi
 target=${1:-}; issue=${2:-}; base=${BASE:-}
 [[ -n "$target" ]] || { echo "usage: $0 <pr-number|branch> [issue-number|issue-file]"; exit 2; }
 CLAUDE=${CLAUDE:-$(command -v claude || ls -t "$HOME"/.cursor/extensions/anthropic.claude-code-*/resources/native-binary/claude 2>/dev/null | head -1)}
@@ -56,7 +61,9 @@ if [[ -z "$verdict_json" ]]; then
   echo "NO VERDICT after ${elapsed}s. Raw result:" >&2; printf '%s\n' "$out" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("result","")[:3000])' >&2; exit 2
 fi
 mkdir -p "$root/runs/reviews"
-file="$root/runs/reviews/${label}__$(date +%Y%m%d-%H%M%S).json"
+stamp=$(date +%Y%m%d-%H%M%S)
+file="$root/runs/reviews/${label}__${stamp}.json"
+printf '%s\n' "$out" > "$root/runs/reviews/${label}__${stamp}.raw.json"
 printf '%s\n' "$verdict_json" | tee "$file"
 verdict=$(printf '%s' "$verdict_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["verdict"])')
 got=$(printf '%s' "$verdict_json" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("target",""))')

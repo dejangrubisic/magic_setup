@@ -1,135 +1,207 @@
-# 06 — Cross-run synthesis (5 runs, 2026-09-02, T0 = 20:16 PDT)
+# 06 — Cross-run synthesis (five practice runs, written after the resumed runs finished)
 
-Written by a fresh-context agent from the five worktrees, the saved review verdicts and the lessons files;
-the three runs marked AGENT DIED were cut off by the subscription session limit at T+34 and resumed later.
-Changes 1-12 below were applied to the scaffold on 2026-09-03 except where noted in `00-practice-problems.md`.
+# Practice runs: cross-run synthesis (five runs; three resumed on 2026-09-03)
 
-All five agents were killed by the same event: `You've hit your session limit · resets 12:40am` at 20:50-20:51 (T+34-35). The three "AGENT DIED" summaries are that event, not agent bugs; their state is fully recoverable from the worktrees, saved review transcripts in the scratchpad, and commit timestamps, which is what the table below is built from.
+Sources: `lessons/0{0..5}-*.md`, `lessons/06-synthesis.md` (first-pass synthesis; its changes 1-12 are on `main` as of `c9aba05`/`ad87fb9`), the three resume summaries, the current `CLAUDE.md`, `CONTRIBUTING.md`, `Makefile`, `.claude/skills/*/SKILL.md`, `scripts/*.sh`, `src/magic/**`, the saved verdicts under `.claude/worktrees/practice-{eedi,livebench-issue-02,livebench-issue-05}/runs/reviews/`, and each `dev/practice/<name>/REPORT.md` (eedi's via `git show practice-eedi-issue-04:dev/practice/eedi/REPORT.md`; it is not on the base branch).
 
 ## 1. Run table
 
-| run | active min (wall / coding) | min to baseline | issues done / planned | review rounds (completed + killed) | review min | baseline metric | deliverable quality (1-5) |
-|---|---|---|---|---|---|---|---|
-| eedi | 35 / ~14 (all 4 issues coded by T+18.5) | 15 (`--limit 50`), 16 (full split) | 1 merged, 3 coded-unreviewed / 4 | 2 + 1 | 13.2 (7.0, 6.2) | MAP@25 0.164 [0.144, 0.183], n=819 | 4 - complete REPORT on `practice-eedi-issue-04` with 5 sharp findings, unreviewed |
-| easy2hard | 35 / ~12 | 16 | 2 merged + 1 approved-unmerged + report committed / 4 | 4 + 1 | ~18 (4-5 each) | Spearman 0.261 [0.135, 0.374] (length-only); best 0.381 | 4 - reviewed through 03, correct negative result on curricula, 5-seed CIs over-read |
-| livebench | 35 / ~23 (all 5 issues coded by T+23) | 5 | 2 merged (01 merged after an unreviewed fix), 2 in REQUEST_CHANGES, 04 not started / 5 | 11 + 0 (1 APPROVE total) | ~65 (11 x 5-9, 2-3 parallel) | strict mean 0.256; o1-mini 0.713 reasoning | 3 - REPORT draft complete but only in the shared scratchpad; sign-filter bug in 02 never fixed |
-| mmlupro | 35 / ~20 | 4 | 3 merged, REPORT written T+18 (review killed) / 4 | 8 + 1 | ~45 | acc sonnet-3.5 0.762 [0.754, 0.770] (Wilson) | 4 - best data archaeology (positional ids, HF-edited texts), manual check of 20 suspects; unreviewed |
-| gridworld | 35 / ~12 | 3.5 (0.000, useless); ~10 for 0.133 | 2 merged, 03 committed-unreviewed / 3 | 4 + 1 (round 1 was a wrong-branch verdict) | 20.4 (3.3, 7.6, 4.6, 4.9) | held-out solve 0.107 [0.067, 0.133] (random) | 3 - honest but no signal between curricula; held-out redefined mid-run |
+| run | active min | min to baseline | issues done / planned | review rounds (completed + lost) | review min | baseline metric | deliverable quality (1-5) |
+|---|---:|---:|---|---|---:|---|---|
+| eedi | 53 (16 agent A coding, rest review + resume) | 13 (`--limit 50`), 14 (full) | 3 merged / 4; 04 complete on its branch, `needs-human` after 3 rounds | 7 + 3 (lost to the script edit) | 40 | TF-IDF MAP@25 0.164 [0.144, 0.183], n=819; no-construct 0.109 | 4: sharp, every finding cites a table, but unmerged and two numbers labelled ad hoc |
+| easy2hard | 35 (killed at the limit, not resumed) | 16 | 2 merged / 4; 03 fixed, 04 written, both unreviewed since | 4 + 1 | ~18 | Spearman 0.261 [0.135, 0.374] length-only; best 0.381 | 4: clean tables, correct negative curriculum result; 5-seed CIs over-read |
+| livebench | 51 (36 A + 15 B) | 7 | 3 / 5 merged clean; 02 and 05 merged with open REQUEST_CHANGES; 04 report on base | 8 + 2 (script edit) | 47 | strict mean 0.256 -> 0.275 after #05; o1-mini 0.753 | 3: well-cited report from re-runs, but two merged issues carry open blocking findings |
+| mmlupro | 38 (30 A + 8 B) | 0 (`--limit 50` run predates the first commit) | 4 / 4; 04 merged with no verdict | 7 + 2 (r1 killed, r2 unfinished at hard stop) | 36 | sonnet-3.5 acc 0.761 [0.753, 0.769] Wilson, n=12,030 | 4: best analysis (re-key by text, 7/20 label errors hand-checked), never reviewed, `n` prints as 12032.000 |
+| gridworld | 35 (killed, not resumed) | 3.5 (0.000, useless); ~10 for 0.133 | 2 merged / 3; 03 (analysis + report) committed, unreviewed | 4 + 1 (round 1 was a wrong-branch verdict) | 20 | held-out solve 0.107 [0.067, 0.133] random | 3: honest null result, held-out set redefined mid-run |
 
-Across runs: coding was 12-23 minutes of a 35-minute window; the rest was waiting on 29 completed review rounds (~160 reviewer-minutes) plus 4 killed ones. Every REPORT that exists has CIs on every headline number and 5 findings; none was reviewed end to end.
+Coding was 12-23 min per run; reviewer wall-clock was 18-47 min per run (mean 5.2 min, $1.5-3.0 per round). In the three resumed runs the deliverable (REPORT) was the last thing in the chain and the first casualty of every kill.
 
 ## 2. Cross-cutting findings
 
 **Consistently helped**
-- One worktree per sub-issue so reviews run concurrently (easy2hard, livebench, eedi via `chain.sh`, gridworld). Biggest wall-clock saver.
-- `magic.{stable_split, bootstrap_ci, wilson_interval, RunDir, write_jsonl, to_markdown}` covered every stats/IO need; zero new dependencies in 5/5 runs.
-- 60-row real-data fixtures under `tests/fixtures/` made every stage script testable in ~3 s offline (easy2hard, eedi, mmlupro, livebench); tests-first caught two real bugs in easy2hard within seconds.
-- The reviewer's obligations table cited `file:line` every time and caught at least one real test-as-evidence failure per run (gridworld vacuous determinism test; eedi vacuous correct-letter check; livebench wrong positive-sign test; mmlupro NaN tokens in samples.jsonl; easy2hard curriculum curves with zero seed variance).
-- Local markdown issues + `ISSUE=<file>` in `review_pr.sh` made the no-GitHub setup trivial (5/5).
-- Inspecting the data before slicing: livebench found "no reasoning rows in model_judgment" at T+1.5 and re-planned; mmlupro found positional ids and HF-edited texts and re-keyed. Runs that skipped it (gridworld's unlearnable held-out set) lost 5+ minutes.
+- One worktree per sub-issue and reviews in parallel: eedi's three resume reviews took 4.8 min wall instead of ~12.5 serial; easy2hard, livebench, mmlupro ran 2-3 rounds concurrently. (easy2hard, livebench, mmlupro, eedi-B)
+- The `magic` utilities covered every stats/IO need with zero new dependencies (5/5), and full pipelines run in seconds (eedi 0.8 s, livebench 1-2 s, mmlupro 14 s, gridworld 65 s), so re-verifying every report number after a resume was free. (eedi, livebench, mmlupro)
+- Small real fixtures plus tests-first: easy2hard caught two real bugs in seconds; eedi's ranking tests run in 40 ms and let the reviewer verify ACs without the full data. (easy2hard, eedi, mmlupro, livebench)
+- Inspecting data before slicing and writing the finding into the epic: livebench (no reasoning rows) at T+3, mmlupro (positional ids, HF-edited texts; all-fail set under-counted 53% before the re-key). Runs that skipped it lost 5+ min (gridworld's unlearnable held-out set). (livebench, mmlupro, gridworld)
+- Git as the only state: reflog, run-dir timestamps, `config.json.git_sha`, `(#NN)` squash subjects and amendments committed on the base branch let resumed agents map state in 1-2 min; the hand-written state note was wrong. (eedi, livebench, mmlupro)
+- Reviewer precision: zero false positives in the 7 new-era verdicts read (eedi 5, livebench 2); every block cited `file:line` and a reproduction; it found latent bugs the authors missed (eedi label collision, livebench `fit_1pl` order, mmlupro NaN tokens, livebench "extracted" functions the script never calls). (eedi, livebench, mmlupro)
 
 **Consistently hurt**
-- `tasks/` not importable: 5/5 runs, 8-10 minutes each and one blocked review round each (eedi, gridworld, mmlupro, livebench amended `pyproject.toml` inside issue 01). Already fixed (`src/magic/tasks`).
-- Self-amended issue files in the implementation branch: blocked eedi 01 r1, livebench 01 r1 (note) + 03 r1 + 03 r2, mmlupro 01 r2 + r3, gridworld 01. Seven review rounds (~40 reviewer-minutes) on a process gap: the reviewer is right, but the implement skill still says only "stop and ask", so every agent improvised.
-- The reviewer occupies the working tree: agents could not edit while a review ran (gridworld, livebench), a review tested whatever branch the tree was on (eedi), and one verdict came back for another run's branch (gridworld r1). Reviews take 3-9 min per round; this idle time exceeded coding time in 4/5 runs.
-- Session limit: 5 agents + up to 15 concurrent `claude -p` reviewers on one subscription exhausted it at T+34 (5/5).
-- Chained sub-branches + squash merge = add/add conflicts (easy2hard); eedi wrote `chain.sh` (rebase `--onto`) to cope; livebench reviewed against `BASE=issue-01`. The "branch from main only" gotcha is now in CLAUDE.md, but waiting for a 6-minute review before starting dependent work is exactly the idle time above.
-- `NaN` tokens in `summary.json` / `samples.jsonl` (livebench: 3 reviewer notes; mmlupro: 1 blocking round). `to_markdown` prints integer `n` as `819.000` (eedi, mmlupro, gridworld reports).
-- Script `main()` untested: the reviewer noted it (non-blocking) in eedi, gridworld, livebench x4, easy2hard; CONTRIBUTING §2 makes it a criterion, so in CI this becomes a blocking round.
-- Shared scratchpad: easy2hard's REPORT draft was overwritten by livebench; livebench's final REPORT only ever lived there. Gotcha already added.
+- Review latency dominated wall-clock: 3.5-8 min per round, 36-47 review-min in 38-53 active-min resumed sessions. (5/5)
+- Nothing persisted at the kill: the old script printed verdicts to stdout; resume needed reflog forensics and the mmlupro 04 r1 round vanished entirely. (eedi, livebench, mmlupro)
+- Editing `scripts/review_pr.sh` on `main` (commit `ad87fb9`, 08:36:58) while resumed agents were executing it killed 5 reviews (~25 min, ~$8). (eedi, livebench)
+- The report last, and prose numbers with no scripted source: eedi's report issue ate 5 rounds across two agents on three different unscripted/over-claimed numbers; mmlupro's draft table came from a pre-fix run (0.1-0.3 pt drift, a model row missing); livebench's report did not exist when agent A died. (eedi, mmlupro, livebench)
+- Chained sub-branches: add/add conflicts (easy2hard), three chain rebases (eedi), manual `rebase --onto` (livebench), 3 of 4 branches rebased and reviews pointed at an unmerged base (mmlupro). The skill and CLAUDE.md currently contradict each other on this. (easy2hard, eedi, livebench, mmlupro)
+- Data downloaded into a worktree instead of the main checkout: one wasted 5-min round (mmlupro 03 r1) and per-worktree downloads. (mmlupro, eedi, livebench, easy2hard)
+- Process violations under deadline: branches merged before their verdicts arrived (livebench 02/05, mmlupro 04); both livebench verdicts came back REQUEST_CHANGES with valid findings. (livebench, mmlupro)
+- Silent no-op scripted text edits (a `replace` that matched nothing across a line wrap or after the format hook rewrapped the line) and hook rewrites dropping `# noqa`. (eedi, easy2hard, gridworld)
+- A ~50 min harness stall (08:36-09:33) in all three resumed sessions, blowing every wall-clock budget with zero agent activity. (eedi, livebench, mmlupro)
 
 ## 3. Ranked setup changes still worth making
 
-1. **`scripts/review_pr.sh`: review in a detached temporary worktree and read the issue from BASE.** Motivated by eedi, livebench, gridworld (wrong-branch verdict, wrong-tree tests, no editing during review) and the reviewer-run `runs/easy2hard_*` clutter. Expected gain: 4-9 min per round handed back to the agent (roughly halves wall-clock), and no cross-talk. Replace the branch-mode block and the `claude` call with:
-   ```bash
-   # branch mode: review a pristine checkout of the branch, never the caller's working tree
-   tmp=$(mktemp -d); git worktree add -q --detach "$tmp" "$target" || { echo "cannot check out $target"; exit 2; }
-   trap 'git worktree remove --force "$tmp" 2>/dev/null' EXIT
-   [[ -f "$issue" ]] && { git show "$ref:${issue#"$(git rev-parse --show-toplevel)/"}" > "$tmp/.issue.md" 2>/dev/null && issue="$tmp/.issue.md"; }
-   (cd "$tmp" && uv sync -q --locked && [[ -d "$(git rev-parse --show-toplevel)/data" ]] && ln -s "$(git rev-parse --show-toplevel)/data" data)
-   out=$(cd "$tmp" && "$CLAUDE" -p "..." ...)
-   ```
-   Reading the issue from `$ref` is stricter, not looser: a branch cannot ratify its own spec edit, and the diff still shows the attempt.
-2. **`scripts/review_pr.sh` + `run-issues` skill: recognise the session limit.** Motivated by 5/5. After the `NO VERDICT` check add: `printf '%s' "$out" | grep -q "hit your session limit" && { echo "RATE_LIMIT: $(printf '%s' "$out" | grep -o 'resets [^"]*')" >&2; exit 3; }`. In `run-issues` step 2 replace "wait for the reset and resume them" with "on exit 3 from `make review`, stop launching, record the reset time in the status table, and resume every agent from its worktree after it". Also set `ANTHROPIC_API_KEY` for reviews (`doctor.sh` already checks it) so reviewers do not share the agents' session window. Gain: the runs would have finished instead of losing 3 reports.
-3. **`.claude/skills/implement-issue/SKILL.md` step 1: the amendment procedure.** Motivated by eedi, livebench, mmlupro, gridworld (7 rounds). Append to step 1: "If the data contradicts a criterion (missing column, different format, impossible threshold), do not edit the issue in your branch. Amend it where it lives: `gh issue edit` with a comment starting `Amendment:` and why, or for a local issue file a separate `docs: amend issue N` commit on the base branch, then rebase. Shared-file edits the amendment permits go in the same base commit. Only then implement." Gain: one review round (~6 min) per data surprise; every data run had one.
-4. **`src/magic/runs.py` + `src/magic/io.py`: never write `NaN`.** Motivated by livebench, mmlupro. Add in `io.py`: `def _clean(o): return None if isinstance(o, float) and math.isnan(o) else str(o)` is wrong for the general case; instead pass `default=str` plus pre-sanitise: `json.dumps(payload, indent=2, default=str, allow_nan=False)` in `write_config`/`write_summary` and `json.dumps(row, ensure_ascii=False, default=str, allow_nan=False)` in `write_jsonl`, with a helper `nan_to_none(obj)` (recursive over dict/list; converts float NaN and pandas NA to None) applied first. Gain: removes one blocking round and every `jq`/JS consumer failure.
-5. **`src/magic/results.py::to_markdown`: keep integers integer.** Motivated by eedi, mmlupro, gridworld. `return df.to_markdown(floatfmt=floatfmt, intfmt="d")` and cast columns named `n*` back to int when they are whole (`df = df.assign(**{c: df[c].astype(int) for c in df if c.startswith("n") and (df[c].dropna() % 1 == 0).all()})`). Gain: cosmetic but present in every report and every reviewer note list.
-6. **`src/magic/results.py::ci_by_group`: `method="bootstrap"|"wilson"` and `min_n`.** Motivated by livebench (`per_task_table`, reviewer flagged the unguarded ranking twice), mmlupro (`model_accuracy`, `category_accuracy`), eedi (`slice_table`), gridworld (n<10 note). Signature: `ci_by_group(df, group_cols, value_col="score", method="bootstrap", min_n=0, n_boot=1000)`; for `wilson` use `wilson_interval(int(g[value_col].sum()), len(g))` and require values in {0,1}; rows with `n < min_n` get `lo = hi = NaN` and are sorted last. Gain: three runs wrote this by hand and two were asked to add the guard.
-7. **`tests/test_tasks_example.py`: add the script-level test every task copies.** Motivated by eedi, gridworld, livebench, easy2hard (reviewer note each time; CI would block). Add:
-   ```python
-   def test_example_stage_writes_a_resumable_run(tmp_path, capsys):
-       from scripts.example_stage import (
-           main,
-       )  # scripts/ is on ruff src; add scripts/__init__.py or use runpy
+Already on `main`, not re-proposed: `src/magic/tasks`, paired `bootstrap_ci`, `plots.line_with_ci`, `results.ci_by_group` (Wilson, `min_n`), `load_runs` configs, `to_markdown` integer `n*`, `magic.io.dumps` NaN-safe, `fetch_hf`, detached-worktree review with issue read from base, saved verdicts + target check + dirty/empty guards + rate-limit exit 3, `wt.sh` data symlink, amendment procedure, `tests_on_base.sh`, the review-skill "narrow defects block / invalid JSON is a defect" lines, CLAUDE.md gotchas (hooks, failed commits, branch from main, worktree scratch, data in main checkout).
 
-       sys.argv = [
-           "x",
-           "--data",
-           "tests/fixtures/example.jsonl",
-           "--limit",
-           "5",
-           "--runs-root",
-           str(tmp_path),
-       ]
-       main()
-       run = next(tmp_path.glob("example__*"))
-       assert {p.name for p in run.iterdir()} == {"config.json", "samples.jsonl", "summary.json"}
-       assert json.loads((run / "summary.json").read_text())["n"] == 5
-       assert "ALL" in capsys.readouterr().out
-   ```
-   plus one line in `implement-issue` step 4: "a stage script's criterion is tested by calling its `main()` on the fixture into `tmp_path` (see `tests/test_tasks_example.py`)". Gain: removes the most repeated reviewer note.
-8. **`scripts/wt.sh`: symlink `data/` into new worktrees.** Motivated by mmlupro (03 r1 blocked as "unverifiable: data/raw absent from this worktree"), eedi and livebench (re-downloaded per worktree), scenarios §3. After the `uv sync` line: `[[ -d "$root/data" && ! -e "$dir/data" ]] && ln -s "$root/data" "$dir/data"`. Gain: one blocked round and one download per worktree.
-9. **`plan-issues` SKILL.md step 2: two lines.** (a) "Files expected to change always lists `tests/test_<module>.py` for every module listed" (livebench 03 r2 blocked on exactly this; eedi/mmlupro pre-empted it by luck). (b) "Before slicing, run a 10-line inspection (shape, columns, join-key value counts, duplicates) and record surprises under `## Data findings` in the epic" (livebench did; mmlupro found positional ids at T+11; gridworld's held-out set was unlearnable). Gain: one round per run.
-10. **`implement-issue` SKILL.md step 6: chained work while a review runs.** Motivated by easy2hard (squash conflicts), eedi (`chain.sh`), livebench (`BASE=issue-01`). Add: "While your review runs you may start a dependent issue from your branch; before *its* review run `git rebase --onto origin/main <parent-branch>` once the parent has merged, then `make test`." This keeps the CLAUDE.md rule (nothing lands unrebased) and removes the idle wait. Gain: 5-8 min per dependent issue.
-11. **`src/magic/io.py::fetch_hf(repo, config=None, split="train", out=None) -> pd.DataFrame`**: `load_dataset(...).to_pandas()`, write parquet to `data/raw/<name>.parquet` if `out`, print `shape` and `dtypes`. Motivated by easy2hard (`easy2hard_fetch.py`), livebench, mmlupro (identical 10 lines each). Modest gain (~3 min) but it is the "inspect columns" step made free; keep it to ~12 lines to respect CONTRIBUTING §5.
-12. **`scripts/review_pr.sh` header + `implement-issue` step 6: exit-code note.** `make` returns 2 for any recipe failure, so the 0/1/2 contract only holds when calling `scripts/review_pr.sh` directly (eedi and mmlupro both mis-read this). One sentence in each; orchestrators should parse the saved `runs/reviews/*.json` instead.
+### 1. `scripts/review_pr.sh`: run from an in-memory copy (eedi, livebench)
+Insert directly after the comment header, before `set -uo pipefail`:
+```bash
+# bash reads a script lazily: re-exec from an in-memory copy so an edit to this file cannot kill a running review.
+[[ -n "${_REVIEW_PR_INMEM:-}" ]] || { _REVIEW_PR_INMEM=1 exec bash -c "$(cat "$0")" "$0" "$@"; }
+```
+Gain: removes the failure that cost 5 reviews (~25 min, ~$8) in one morning; folds in livebench's proposed CLAUDE.md gotcha, which is then unnecessary.
 
-**Rejected**
-- `--model claude-sonnet-5` for local pre-reviews (scenarios §7): REJECTED - a weaker local gate trades fewer local minutes for extra CI rounds; the local reviewer is the one that catches test-as-evidence failures before push. Fix the latency with #1 and #2 instead.
-- "Reviewer should compare against the branch's amended issue text and not treat the edit as blocking" (livebench, eedi variants): REJECTED as stated - it lets a branch ratify its own spec. #1 (issue read from BASE) and #3 (amend on base first) give the same throughput without loosening.
-- "Solo runs ratify their own amendments" (eedi): REJECTED for the real task; a human ratifies on GitHub. Practice-only convention.
-- `make sweep` (gridworld only), `magic.irt` (livebench only), `ap_at_k` (eedi only), `bar_with_ci` label wrapping (eedi only), `.gitignore` fixture subdirs (eedi only), `dev/issue_template.md` + `make issue` (gridworld, livebench): the last is two runs but `plan-issues` already lists the five fields and `.github/ISSUE_TEMPLATE/task.yml` exists; a new file adds a thing to keep in sync for a 30-second copy.
+### 2. `scripts/review_pr.sh`: persist something on every exit path (eedi, mmlupro, livebench)
+Replace the block from `start=$(date +%s)` to the `NO VERDICT` check with:
+```bash
+mkdir -p "$root/runs/reviews"
+file="$root/runs/reviews/${label}__$(date +%Y%m%d-%H%M%S).json"; raw="${file%.json}.raw"
+start=$(date +%s)
+null_verdict() { printf '{"target": "%s", "verdict": null, "reason": "%s", "elapsed_s": %s}\n' "$target" "$1" "$(( $(date +%s) - start ))" > "$file"; echo "NO VERDICT ($1) after $(( $(date +%s) - start ))s -> $file" >&2; }
+trap 'null_verdict killed; exit 2' TERM INT
+out=$(cd "$workdir" && "$CLAUDE" -p "..." ... 2>/dev/null)     # unchanged
+elapsed=$(( $(date +%s) - start ))
+printf '%s\n' "$out" > "$raw"        # full transcript survives a rate limit, a bad verdict or a kill
+if printf '%s' "$out" | grep -q "hit your session limit"; then
+  null_verdict rate_limit; echo "RATE_LIMIT: $(printf '%s' "$out" | grep -o 'resets [^"]*' | head -1)" >&2; exit 3
+fi
+verdict_json=$(...)   # unchanged
+[[ -n "$verdict_json" ]] || { null_verdict no_verdict; printf '%s\n' "$out" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("result","")[:3000])' >&2; exit 2; }
+```
+and delete the later `mkdir -p` / `file=` lines. Gain: a resumed agent reads one file instead of reconstructing rounds from reflog (1-3 min per resume, 3/3 runs) and a killed round leaves its partial obligations table (mmlupro 04 r1 left nothing). Livebench's "distinct exit codes 2 vs 4" is rejected: `make` flattens every failure to 2 anyway; orchestrators read the file.
+
+### 3. `scripts/review_pr.sh` + `scripts/wt.sh`: resolve `data/` from the main checkout (mmlupro, eedi, livebench, easy2hard)
+In `review_pr.sh` replace the `ln -s "$root/data"` line and the `echo "reviewing ..."` line with:
+```bash
+data="$root/data"; [[ -d "$data" ]] || data="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/data"
+[[ -d "$data" && ! -e "$tmp/data" ]] && ln -s "$data" "$tmp/data"
+echo "reviewing $target ($n commits over $ref) against $issue in $tmp; data: $data$([[ -d "$data" ]] || echo ' (MISSING)')" >&2
+```
+In `wt.sh` replace the data symlink line with:
+```bash
+main=$(dirname "$(git -C "$root" rev-parse --path-format=absolute --git-common-dir)")
+[[ -d "$main/data" && ! -e "$dir/data" ]] && ln -s "$main/data" "$dir/data"   # one download per machine
+```
+Gain: one 5-min round (mmlupro 03 r1 "data/raw/mmlupro does not exist") and one download per worktree; a missing dataset becomes a header line, not a verdict. The CLAUDE.md line stays as is.
+
+### 4. `plan-issues` + `implement-issue`: the report is scripted, skeletoned early, and regenerated last (eedi, mmlupro, livebench)
+`plan-issues` step 2, add a bullet:
+> - The report issue has fixed criteria: every number in `REPORT.md` and its `dev/LOG.md` entry is in a table written by a named script run on the base branch after the last dependency merged, with the run id cited; any other number is labelled `ad hoc` or removed. Statistics the report will want (Hit@k, per-group counts, extra CIs) are criteria of the issue that produces them and land in `summary.json`, never in prose.
+
+`plan-issues` step 4, add:
+> Commit `dev/<task>/REPORT.md` with the epic as a skeleton: one heading per issue naming the script and the table it will cite, no numbers. Only the report issue edits it afterwards, so it stays out of every other issue's "Files expected to change".
+
+`implement-issue` step 4, add one sentence:
+> A report issue starts with `git rebase origin/main` (all dependencies merged) and a fresh run of every script it cites; paste only from those run ids.
+
+Gain: eedi's 5 report rounds (~25 min) become 1-2; mmlupro's drift and missing row cannot happen; a killed run leaves a partial report. Livebench's variant ("every issue appends its table to the report") is rejected: it makes `REPORT.md` a shared file across parallel issues.
+
+### 5. `implement-issue` step 6: remove the contradiction with CLAUDE.md on chained branches (easy2hard, eedi, livebench, mmlupro)
+Replace the last sentence of step 6 ("While a review runs you may start a dependent issue from this branch; ... `git rebase --onto origin/main issue-$ARGUMENTS` and `make test`.") with:
+> While the review runs you may start another *independent* ready issue in its own worktree (`make wt`); a dependent issue waits for this one to merge (CLAUDE.md: branch from `origin/main` only).
+
+Gain: every run paid 2-5 min per chained branch (conflicts, `rebase --onto`, reviews against an unmerged base); the reviewer reads CLAUDE.md, so the contradiction also risks a scope finding. This is a deletion of a permission, not new procedure; `run-issues` already defines "ready" as dependencies closed.
+
+### 6. `Makefile` + `scripts/merge_issue.sh`: local squash-merge that requires a saved APPROVE (easy2hard, livebench, mmlupro, eedi)
+```make
+.PHONY: merge-issue
+merge-issue: ## Local squash-merge of a reviewed branch into its base: make merge-issue B=<branch> N=<nn> MSG="<type>: <what>" [BASE=main] [FORCE=1]
+	FORCE="$(FORCE)" scripts/merge_issue.sh $(B) $(N) "$(MSG)" $(BASE)
+```
+```bash
+#!/usr/bin/env bash
+# Local (no-GitHub) equivalent of gh pr merge --squash. Run from the branch's own worktree.
+#   scripts/merge_issue.sh <branch> <nn> "<type>: <what>" [base=main]; FORCE=1 skips the verdict check (log why in dev/LOG.md)
+set -euo pipefail
+b=$1; n=$2; msg=$3; base=${4:-main}
+[[ "$(git rev-parse --abbrev-ref HEAD)" == "$b" ]] || { echo "run from the worktree of $b"; exit 2; }
+latest=$(grep -l '"verdict": "APPROVE"' $(ls -t runs/reviews/"$b"__*.json 2>/dev/null) 2>/dev/null | head -1)
+[[ -n "$latest" || "${FORCE:-}" == 1 ]] || { echo "no APPROVE verdict for $b in runs/reviews/ (FORCE=1 to override, then log it)"; exit 2; }
+git rebase "$base" && make test
+bd=$(git worktree list --porcelain | awk -v r="refs/heads/$base" '$1=="worktree"{d=$2} $1=="branch"&&$2==r{print d}')
+[[ -n "$bd" ]] || { echo "$base is not checked out in any worktree"; exit 2; }
+git -C "$bd" merge --squash "$b" && git -C "$bd" commit -q -m "$msg (#$n)" && git -C "$bd" log -1 --oneline
+```
+Gain: 2-3 min per merge (four manual commands with a conflict trap in every run) and the unreviewed merges of livebench 02/05 and mmlupro 04 become an explicit `FORCE=1`. Unnecessary once GitHub auto-merge is in use; keep until the loop is tested end to end (scenarios.md, last section).
+
+### 7. `Makefile`: `make status` (eedi, livebench, mmlupro)
+```make
+.PHONY: status
+status: ## Resume map: issue branches by date, worktrees, latest saved verdicts: make status [P=issue-]
+	@git for-each-ref --sort=committerdate --format='%(committerdate:short) %(refname:short)  %(subject)' "refs/heads/$(or $(P),issue-)*"
+	@git worktree list
+	@ls -t runs/reviews/*.json .claude/worktrees/*/runs/reviews/*.json 2>/dev/null | head -20
+```
+Gain: 1-3 min per resume in three runs, and it replaces the hand-written state note that said "03 and 04 untouched" when both were fully committed (would have cost two re-implemented issues).
+
+### 8. `scripts/review_pr.sh` + `review-pr` SKILL step 1: local re-reviews see the previous verdict (eedi, mmlupro, livebench)
+In branch mode, after the issue-file block:
+```bash
+prev=$(grep -l '"verdict": "' $(ls -t "$root/runs/reviews/${target}__"*.json 2>/dev/null) 2>/dev/null | head -1)
+[[ -n "$prev" ]] && cp "$prev" "$tmp/.previous_verdict.json"
+```
+Skill step 1, append: "Branch mode: a `.previous_verdict.json` in the checkout is your earlier verdict on this branch; apply the same re-review rule." Gain: consistency with PR mode; rounds shorten (eedi 04 grew 4.2 -> 5.5 -> 7.7 min re-deriving everything). New blocking findings are still reported, so this does not loosen anything.
+
+### 9. `src/magic/runs.py`: `RunDir(path)` opens, `RunDir.new` creates (eedi, flagged in two separate reviews; every `--run <id>` reader in every run has the same hole)
+```python
+def __init__(self, path: str | Path) -> None:
+    self._path = Path(path)
+    if not self._path.is_dir():
+        raise FileNotFoundError(f"no such run dir: {self._path}")
+
+
+@classmethod
+def new(cls, root: str | Path = "runs", name: str = "run") -> RunDir:
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    return cls(ensure_dir(Path(root) / f"{name}__{stamp}__{secrets.token_hex(3)}"))
+```
+`tests/test_results.py` lines 18, 22, 95: wrap the path in `ensure_dir(...)`. Gain: a mistyped `--run` fails immediately instead of creating an empty dir that `load_runs` then picks up; removes a recurring reviewer note.
+
+### 10. `CLAUDE.md` Gotchas, one line (eedi, easy2hard, gridworld)
+> - A scripted edit (`str.replace`, `sed`) that matches nothing is silent, and the format hook rewraps lines between your edits: assert exactly one match, or `git diff` before committing a text fix.
+
+Gain: two commits claimed changes they did not contain; caught only by grepping afterwards.
+
+**REJECTED**
+- Any loosening of the reviewer: "accept the branch's own amendment" (eedi, livebench variants), "downgrade narrow defects to notes", "skip data-dependent criteria when `data/` is absent" (implied by mmlupro 03 r1), "cheaper model for local reviews" (scenarios §7). The mmlupro block was an environment failure fixed by #3, not by telling the reviewer to pass unverifiable obligations; `unverifiable = not met` is the rule that caught the unscripted report numbers.
+- One run only, no generalising reason: `hit_at_k` (eedi; #4 puts it in the task's `summary.json`), `bar_with_ci` label de-dup (eedi), `rekey_by_text` (mmlupro; a five-line normalised-text merge that belongs in the task module, with the id-agreement rate under Data findings), exit codes 2 vs 4 (livebench), CLAUDE.md reconciliation of `tasks/` vs `src/magic/tasks/` (eedi; practice branches only, the real task starts from `main`), "rebase the practice branch onto main before resuming" (livebench; real issues already rebase in step 7), a stall detector in the orchestrator (not a repo change; see risk 10).
+- "One worktree per sub-issue" in `implement-issue` (eedi): already the design; eedi's chain was one agent doing four issues, which CONTRIBUTING §7 forbids.
 
 ## 4. Reviewer calibration
 
-**False positives:** none in rounds that reviewed the right branch. Every blocking finding cited `file:line` and a reproduction, and the four "process" blocks (self-amended issue: eedi, livebench x2, mmlupro x2; test file not in expected files: livebench 03 r2; data absent: mmlupro 03 r1) were correct under CONTRIBUTING even where they were expensive. Those costs are fixed upstream by changes #1, #3, #8, #9, not by the reviewer.
+**False positives.** None in the 7 new-era verdicts (eedi 02/03 APPROVE with accurate notes; eedi 04 r1-r3 each blocked on one real prose defect; livebench 02 and 05 blocked on real problems). Environment-caused blocks: mmlupro 03 r1 (data invisible, fixed by #3); gridworld 01 r1 wrong-branch verdict (fixed by the detached worktree and target check). Pedantic-but-true notes: LOG tag vocabulary (eedi r2), unverifiable leaderboard figure (eedi r3), `--min-n` flag not in the issue (eedi 02). Nothing to change.
 
-**False negatives / inconsistencies:**
-- Severity drift on the same defect across rounds: livebench 02 reported the missing `proxy < 0` filter (suspect list padded with positive-proxy items) as a *note* in r1 and r2, then *blocking* in r3; NaN-in-JSON was a note three times in livebench and blocking in mmlupro 01 r3. The rule in step 9 already makes both blocking; the wording lets "narrow" defects slide.
-- gridworld 01: the manhattan-distance test runs on one level only and `gridworld_train.py` has no test; both noted as non-blocking because the issue did not ask. Correct per rules; fix via #7 and #9.
-- livebench 01 was merged after an unreviewed fix (r3 REQUEST_CHANGES at 20:41, fix at 20:41, merge at 20:44). Process, not reviewer; #2 and the `run-issues` status table make this visible.
-- Cross-talk: gridworld 01 r1 returned a verdict for `practice-mmlupro-issue-01`. The `target` check now catches it; #1 removes the cause.
+**False negatives.**
+- eedi 04 r1: `REPORT.md` cites run `eedi_baseline__20260902-203158` whose `config.json.git_sha` is `cf0529f`, the epic commit, i.e. the run was produced by uncommitted code. Not flagged. The reviewer's checkout has no `runs/`, so it cannot check shas; #4 makes "run on the base after the last merge, cite the id" an obligation the reviewer can test by re-running the script, which the eedi r3 reviewer already did on its own (re-measured 0.081 vs 0.199).
+- livebench 02 (agent A, r2): approved a commit claiming `item_table`/`binarise` were "extracted from the script" while the script still inlined the logic and never called them; agent B's reviewer caught it under the current skill (step 8, claims not backed by the diff). No wording change needed; the current skill already caught it.
+- mmlupro 04: never reviewed; the 0.762 vs 0.761 drift and missing gpt-4o row were found by the resuming agent. Covered by #4 and #6 (merge requires a verdict).
+- Severity drift on NaN (livebench notes vs mmlupro block) is closed by the step-9 wording already on `main`.
+- The three-round cap worked as intended on eedi 04 (`needs-human`, three real findings); mmlupro 01 went to four rounds, i.e. agent A ignored the cap. No change.
 
-**Exact SKILL.md change** (`.claude/skills/review-pr/SKILL.md`, step 9, append one sentence):
-> "A defect that meets this bar is blocking in every round including the first; never downgrade it to a note because the trigger is narrow, and treat an output file that is not valid JSON (`NaN`, `Infinity`) as a defect."
-
-Nothing else in the skill should change; the three-note cap and "unverifiable counts as not met" both earned their keep.
+**Exact SKILL.md wording change:** only the branch-mode re-review sentence in #8. The report-number rule goes into the issue template (#4), where the reviewer enforces it as an obligation, rather than into the skill; that keeps the skill short and the reviewer exactly as strict.
 
 ## 5. Generic utilities re-implemented by two or more runs (not yet in `src/magic`)
 
-- `ci_by_group(df, group_cols, value_col="score", method="bootstrap"|"wilson", min_n=0) -> DataFrame[n, mean, lo, hi]` - livebench `per_task_table`, mmlupro `model_accuracy`/`category_accuracy`, eedi `slice_table` (extend the existing function).
-- `nan_to_none(obj) -> obj` used by `RunDir.write_config/write_summary` and `write_jsonl` with `allow_nan=False` - livebench, mmlupro.
-- `to_markdown(df, floatfmt=".3f", intfmt="d")` - eedi, mmlupro, gridworld.
-- `fetch_hf(repo, config=None, split="train", out=None) -> pd.DataFrame` printing shape and dtypes - easy2hard, livebench, mmlupro.
-- Script-level test pattern `main()` on fixture into `tmp_path` (a test, not a helper) - eedi, gridworld, livebench, easy2hard.
-- `extract(text, mode="strict"|"lenient", first=True)` returning `None` on format failure, with a `runaway` flag when first and last strict matches differ - mmlupro `extract_strict(last=)`, livebench `extract_answer(mode)`; the example task already has strict/lenient, so add `first: bool` and the runaway helper there rather than a new module.
+- `fmt_ci(point, lo, hi, n=None, digits=3) -> str` producing `0.500 [0.366, 0.634] n=50`: livebench per-task table, mmlupro category x model table, easy2hard curriculum table.
+- `ci_pivot(df, index, columns, value_col="score", method="wilson", min_n=0) -> DataFrame` of `fmt_ci` strings (rows = index, cols = columns; `ci_by_group([index, columns])` then pivot): livebench (model x task), mmlupro (category x model).
+- `RunDir` open-vs-create split (#9): eedi slices/confusion, livebench irt/taxonomy, gridworld analysis all open existing runs by id.
+- Not worth wrapping (CONTRIBUTING §5), but worth one line under `plan-issues` Data findings: `df.sort_values(ts).drop_duplicates(keys, keep="last")` for duplicate (model, item) rows: livebench (45 rows), mmlupro (Llama-3-70B file).
+- Not code: the "assert exactly one match" text-edit discipline (eedi, easy2hard) is #10.
 
-Already present and used correctly by later runs: paired `bootstrap_ci`, `plots.line_with_ci`, `results.ci_by_group`, `load_runs` config columns, `magic.tasks`.
+Present already and used correctly by the later runs: paired `bootstrap_ci`, `wilson_interval`, `ci_by_group`, `line_with_ci`, `load_runs` configs, `fetch_hf`, `nan_to_none`/`dumps`, integer `n*` in `to_markdown`, strict/lenient/`runaway` extractors in `magic.tasks.example`, the script-level test in `tests/test_tasks_example.py`.
 
 ## 6. Scenario risks for the real task
 
-1. **Subscription window exhausted** - 5 agents + 11-15 concurrent reviewers died at T+34 (5/5). Mitigation: reviews on `ANTHROPIC_API_KEY`, parallelism 3, `review_pr.sh` exit 3 on limit and the orchestrator pauses until the printed reset time.
-2. **Reviewer runs on the working tree, not the branch** - wrong-branch verdict (gridworld), reviewed whatever the tree was on (eedi), agents frozen for 4-9 min per round (livebench, gridworld). Mitigation: change #1.
-3. **`data/raw` is per worktree** - mmlupro 03 blocked as unverifiable; every worktree re-downloads. Mitigation: `wt.sh` symlink (#8); HF cache is already shared.
-4. **Data schema surprises are the norm** - no reasoning judgments (livebench), positional ids + duplicates + HF-edited texts and answers (mmlupro), different column names per config (easy2hard), correct-answer rows with null labels (eedi), 45 duplicate (model, question) rows (livebench). Mitigation: data-findings step (#9) and `fetch_hf` printing the schema (#11); budget 15 minutes in issue 1.
-5. **Self-amended specs** - 7 blocked rounds. Mitigation: #3; on GitHub the amendment is an issue comment plus `gh issue edit`, ratified by the human.
-6. **Chained branches** - squash add/add conflicts (easy2hard); reviews against intermediate bases (livebench). Mitigation: #10 (`rebase --onto`) and short dependency chains in waves.
-7. **Shared scratch directory** - overwritten REPORT (easy2hard), report only in scratch (livebench). Mitigation: already a CLAUDE.md gotcha; `run-issues` prompt says "scratch inside your worktree".
-8. **Format hook rewrites files mid-edit** - dropped `# noqa`, reordered imports, silent no-op replacements (easy2hard, gridworld). Mitigation: gotcha present; the `sys.path` hack that triggered it is gone with `magic.tasks`.
-9. **Degenerate metric or baseline** - held-out set unlearnable (gridworld 0.000), target is a function of the ordering key (easy2hard). Mitigation: plan-issues line present; the human fixes held-out definition and target before issue 2.
-10. **Invalid JSON in run outputs** - `NaN` tokens break `jq` and downstream loaders (livebench, mmlupro). Mitigation: #4.
-11. **Review latency under CPU contention** - 6 `claude` processes on one laptop gave 3.3-9 min per round; 29 rounds in 35 minutes. Mitigation: #1 (agents keep working), cap concurrency, script-level tests (#7) so first-round approvals rise (they were 4 of 15 first rounds here).
-12. **`make review` exit code** - `make` returns 2 for both REQUEST_CHANGES and no-verdict; two orchestrating scripts mis-read it. Mitigation: parse `runs/reviews/<branch>__*.json` (#12).
-13. **Small-n intervals over-read** - 5 seeds (easy2hard, gridworld), 30 held-out levels where one level is 0.033. Mitigation: `min_n` in `ci_by_group` (#6) and report AUC alongside the final checkpoint, as gridworld did.
-
-Sources: `/Users/dejan/Desktop/work/magic_setup/lessons/{02-easy2hard,05-gridworld,scenarios}.md`; REPORTs at `/Users/dejan/Desktop/work/magic_setup/.claude/worktrees/practice-{easy2hard,gridworld}/dev/practice/*/REPORT.md`, `practice-mmlupro-issue-04/dev/practice/mmlupro/REPORT.md`, `git show practice-eedi-issue-04:dev/practice/eedi/REPORT.md`; dead-run drafts and all 29 verdicts under `/private/tmp/claude-501/-Users-dejan-Desktop-work-magic-setup/fc3f9cef-f4bc-4321-b5b7-87169c625939/scratchpad/` (`lessons-draft.md` = eedi, `lessons_head.md` + `setup_changes.md` + `REPORT.md` = livebench, `mmlupro_review0*_r*.txt`, `review0*-r*.json`, `chain.sh`).
+1. **Session limit with N agents + reviewers**: 5 agents + up to 15 reviewers died at T+34 (5/5); the resumed mmlupro lost another round the same way. Mitigation: reviews on `ANTHROPIC_API_KEY`, parallelism 3, exit 3 handling in `run-issues`, and #2 so a killed round leaves a file.
+2. **Editing `main`'s scripts or skills while agents run**: 5 reviews killed in one morning. Mitigation: #1; apply setup changes only between waves.
+3. **The report dies with the run** (3/3 resumed runs). Mitigation: #4 skeleton with the epic; scenarios §10 (at T-30 only the report issue remains).
+4. **Report numbers drift from merged code** (mmlupro; eedi ad hoc numbers). Mitigation: #4, and pipelines that run in seconds so regeneration is free.
+5. **Chained branches** (5/5 paid a rebase or a conflict). Mitigation: #5 and `run-issues` waves; #6 for local merges.
+6. **Data downloaded where the reviewer cannot see it** (mmlupro, eedi). Mitigation: #3.
+7. **Schema surprises in every dataset** (no reasoning judgments, positional ids, HF-edited texts, duplicate rows, null-label correct answers, per-config column names). Mitigation: the Data-findings step and `fetch_hf`; budget 15 min in issue 1.
+8. **Shared scratch directory** (easy2hard draft overwritten, livebench report only in scratch, mmlupro transcripts survived by prefix). Mitigation: gotcha and `run-issues` prompt already say worktree-only scratch.
+9. **Silent no-op edits and hook rewrites** (eedi, easy2hard, gridworld). Mitigation: #10.
+10. **Harness stall**: ~50 min with no tool output in all three resumed sessions in the same window (08:36-09:33), unrelated to any review. Mitigation: the orchestrator logs tool-call timestamps and budgets active minutes; agents commit before every long wait so a kill loses nothing.
+11. **Merging under deadline without a verdict** (livebench 02/05 both came back REQUEST_CHANGES; mmlupro 04 never got one). Mitigation: #6 `FORCE=1` plus the existing `dev/LOG.md` override rule.
+12. **Wrong hand-written resume state** (eedi). Mitigation: #7.
+13. **Stale worktrees after setup changes**: branches forked before a fix keep the old `RunDir` (bare NaN in livebench's IRT summary), old skills and old scripts. Mitigation: in the real task every issue branches from `origin/main` at launch; apply setup changes between waves only.
+14. **Degenerate baseline or coupled metric** (gridworld 0.000; easy2hard ordering key = label). Mitigation: plan-issues line present; a human fixes held-out and target before issue 2.
+15. **Reviewer cost and latency**: ~44 rounds across five runs at 3.5-8 min and $1.5-3 each. Mitigation: first-round approvals via the script-level test pattern and the amendment rule; the three-round cap; #8 for shorter re-rounds.

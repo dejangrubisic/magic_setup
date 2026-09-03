@@ -15,11 +15,11 @@ SAMPLES = {
 def runs_root(tmp_path):
     root = tmp_path / "runs"
     for name, rows in SAMPLES.items():
-        run = RunDir(root / name)
+        run = RunDir(root / name, create=True)
         for uid, category, score in rows:
             run.append({"id": uid, "score": score, "metadata": {"category": category}})
         run.write_summary({"accuracy": np.mean([r[2] for r in rows]), "n": len(rows)})
-    RunDir(root / "unfinished").append({"id": "q9", "score": 0.0})
+    RunDir(root / "unfinished", create=True).append({"id": "q9", "score": 0.0})
     return root
 
 
@@ -92,7 +92,7 @@ def test_ci_by_group_and_config_in_load_runs(tmp_path):
     from magic.results import ci_by_group, load_runs
     from magic.runs import RunDir
 
-    run = RunDir(tmp_path / "r1")
+    run = RunDir(tmp_path / "r1", create=True)
     run.write_config({"seed": 7})
     for i in range(12):
         run.append({"id": f"s{i}", "score": float(i % 2), "metadata": {"g": "a" if i < 6 else "b"}})

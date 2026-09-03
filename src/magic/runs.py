@@ -30,14 +30,18 @@ def _git_sha() -> str | None:
 class RunDir:
     """A run directory; summary.json is written last and marks the run complete."""
 
-    def __init__(self, path: str | Path) -> None:
-        self._path = ensure_dir(path)
+    def __init__(self, path: str | Path, create: bool = False) -> None:
+        """Open an existing run dir; a mistyped path raises instead of silently creating an empty run."""
+        p = Path(path)
+        if not p.is_dir() and not create:
+            raise FileNotFoundError(f"run dir does not exist: {p} (use RunDir.new or create=True)")
+        self._path = ensure_dir(p)
 
     @classmethod
     def new(cls, root: str | Path = "runs", name: str = "run") -> RunDir:
         """Create runs/<name>__<YYYYMMDD-HHMMSS>__<6 hex>; the suffix keeps parallel runs apart."""
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        return cls(Path(root) / f"{name}__{stamp}__{secrets.token_hex(3)}")
+        return cls(Path(root) / f"{name}__{stamp}__{secrets.token_hex(3)}", create=True)
 
     @property
     def path(self) -> Path:
