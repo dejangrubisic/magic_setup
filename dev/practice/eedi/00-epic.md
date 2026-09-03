@@ -12,7 +12,7 @@ Data: `data/raw/eedi/{train,misconception_mapping}.csv` (gitignored, 0.3 MB).
 
 | # | Title | Depends on | Files | AC (one line) |
 |---|-------|-----------|-------|---------------|
-| 01 | Vertical slice: reshape, split, TF-IDF baseline, MAP@25 + CI | none | tasks/eedi.py, scripts/eedi_baseline.py, tests/test_eedi.py, tests/fixtures/eedi_*.csv | `uv run python scripts/eedi_baseline.py --limit 50` prints a MAP@25 row with CI and writes runs/ |
+| 01 | Vertical slice: reshape, split, TF-IDF baseline, MAP@25 + CI | none | tasks/eedi.py, tasks/__init__.py, scripts/eedi_baseline.py, tests/test_eedi.py, tests/fixtures/eedi_*.csv, pyproject.toml (pytest pythonpath only) | `uv run python -m scripts.eedi_baseline --limit 50` prints a MAP@25 row with CI and writes runs/ |
 | 02 | Slice analysis: MAP@25 by SubjectName / ConstructName with CIs, top-10 hardest constructs | 01 | scripts/eedi_slices.py, tests/test_eedi_slices.py | script prints two tables + hardest-10 from a run dir |
 | 03 | Confusion between misconceptions + plot | 01 | scripts/eedi_confusion.py, tests/test_eedi_confusion.py | script prints top confused pairs and saves a png |
 | 04 | REPORT.md + LOG.md entry | 02, 03 | dev/practice/eedi/REPORT.md, dev/LOG.md | report contains all tables + figure + findings |

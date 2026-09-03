@@ -17,18 +17,18 @@ sample per test row (id, QuestionId, letter, SubjectName, ConstructName, true id
       (true id at rank 1 -> 1.0, rank 3 -> 1/3, absent -> 0.0).
 - [ ] `uv run pytest tests/test_eedi.py::test_rank_returns_topk_ids` passes: ranking returns
       k misconception ids per row, and a row whose text is identical to a misconception name ranks it first.
-- [ ] `uv run python scripts/eedi_baseline.py --limit 50` runs in < 60 s, prints a markdown
+- [ ] `uv run python -m scripts.eedi_baseline --limit 50` runs in < 60 s, prints a markdown
       table with columns run, n, map25, lo, hi and writes `runs/eedi_baseline__*/{config.json,samples.jsonl,summary.json}`.
 - [ ] `make lint && make test` pass.
 
 ## Out of scope
 - Any per-slice analysis, plots, or report (issues 02-04).
 - Any model beyond TF-IDF; no LLM calls; no dense embeddings.
-- Changes to `pyproject.toml`, `Makefile`, `src/magic/`.
+- Changes to `Makefile`, `src/magic/`. (`pyproject.toml` changes only to add pytest `pythonpath = ["."]` so `tasks/` imports.)
 
 ## Files expected to change
 tasks/eedi.py, scripts/eedi_baseline.py, tests/test_eedi.py, tests/fixtures/eedi_train.csv,
-tests/fixtures/eedi_misconceptions.csv
+tests/fixtures/eedi_misconceptions.csv, tasks/__init__.py, pyproject.toml (pytest pythonpath only)
 
 ## Depends on
 none
