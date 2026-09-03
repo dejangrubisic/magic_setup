@@ -33,6 +33,7 @@ table of held-out solve rate vs training steps written to `runs/<id>/summary.jso
 - tasks/gridworld.py (new), tasks/__init__.py (new, empty)
 - scripts/gridworld_train.py (new)
 - tests/test_gridworld.py (new)
+- pyproject.toml: add `pythonpath = ["."]` under `[tool.pytest]` so tests can import `tasks.*` (the scaffold has no such entry yet)
 
 ## Depends on
 none
