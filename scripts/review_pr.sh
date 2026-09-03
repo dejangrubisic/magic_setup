@@ -42,7 +42,7 @@ schema='{"type":"object","required":["target","verdict","obligations","blocking"
 start=$(date +%s)
 out=$(cd "$workdir" && "$CLAUDE" -p "Read .claude/skills/review-pr/SKILL.md and follow its procedure exactly. Arguments: $args. This is a LOCAL pre-PR review: do not post anything to GitHub; put the summary in your final answer and return the JSON described by the schema, with target set to '$target'." \
   --output-format json --json-schema "$schema" --max-turns 40 \
-  --allowedTools "Read,Glob,Grep,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git fetch:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh issue view:*),Bash(make test),Bash(make lint),Bash(uv run pytest:*),Bash(scripts/tests_on_base.sh:*)" \
+  --allowedTools "Read,Glob,Grep,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git fetch:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh issue view:*),Bash(make test),Bash(make lint),Bash(uv run pytest:*),Bash(scripts/tests_on_base.sh:*),Bash(./scripts/tests_on_base.sh:*),Bash(bash scripts/tests_on_base.sh:*)" \
   2>/dev/null)
 elapsed=$(( $(date +%s) - start ))
 if printf '%s' "$out" | grep -q "hit your session limit"; then
