@@ -33,6 +33,9 @@ name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
+[tool.uv]
+package = false          # plain environment: src/ holds modules, nothing is built or installed
+
 [dependency-groups]
 dev = [
     "ruff==0.16.5",
@@ -41,8 +44,7 @@ dev = [
     "pre-commit>=4.0",
 ]
 
-[build-system]
-requires = ["uv_build>=0.11.30,<0.12.0"]
+["uv_build>=0.11.30,<0.12.0"]
 build-backend = "uv_build"
 
 # ---------------------------------------------------------------- ruff
@@ -80,5 +82,6 @@ ignore = [
 # ---------------------------------------------------------------- pytest
 [tool.pytest]
 testpaths = ["tests"]
+pythonpath = ["src"]
 strict = true
 addopts = ["--tb=short", "--import-mode=importlib", "-ra"]

@@ -22,5 +22,5 @@ make review 12    # the CI reviewer, locally; get APPROVE before `gh pr ready`
 In Claude Code: `/plan-issues <task>` writes the epic and sub-issues with you and fans out one
 `/fix-issue N` agent per ready issue; `/review-pr` is the procedure `make review` and CI run.
 
-`CONTRIBUTING.md` is the contract for humans and agents; `CLAUDE.md` adds gotchas. `src/magic/`
-and `tests/` hold one placeholder each: replace them with the project's code.
+`CONTRIBUTING.md` is the contract for humans and agents; `CLAUDE.md` adds gotchas. `src/hello.py` and
+`tests/test_hello.py` are placeholders: replace them with the project's code.
