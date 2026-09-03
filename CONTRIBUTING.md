@@ -50,7 +50,7 @@ attached. Fix root causes; do not suppress errors.
 - Score with both a strict and a lenient extractor when parsing model output, so "wrong format"
   is separated from "wrong answer".
 - Report uncertainty (bootstrap or Wilson intervals) with every headline number.
-- Append every experiment, including negative results, to `dev/LOG.md`: what changed, result vs
+- Record every experiment, including negative results, on its issue or PR: what changed, result vs
   baseline, keep/drop decision.
 
 ## 7. Working with agents
