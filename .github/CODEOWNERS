@@ -1,3 +1,0 @@
-# Changes to the workflow/agent config need a human approval (ruleset: require_code_owner_review).
-.github/ @dejangrubisic
-.claude/ @dejangrubisic

@@ -43,10 +43,10 @@ attached. Fix root causes; do not suppress errors.
 
 ## 6. Data and experiments
 - `data/raw` is immutable and never committed. Everything else is regenerable from scripts.
-  Only tiny fixtures live in git (`tests/fixtures`).
-- Results are produced only by scripts (never by notebooks) into `runs/<run>/` as
-  `config.json` + append-only `samples.jsonl` + `summary.json`. Runs are resumable by id.
-- Every model call goes through the cache. Every run records seed, git sha, model, prompt version.
+  Only tiny test fixtures live in git.
+- Results are produced only by scripts (never by notebooks) into `runs/<run>/`: the exact config,
+  an append-only per-sample log, and a summary written last. Runs are resumable by sample id.
+- Every model call is cached on disk. Every run records seed, git sha, model and prompt version.
 - Score with both a strict and a lenient extractor when parsing model output, so "wrong format"
   is separated from "wrong answer".
 - Report uncertainty (bootstrap or Wilson intervals) with every headline number.
@@ -54,11 +54,12 @@ attached. Fix root causes; do not suppress errors.
   baseline, keep/drop decision.
 
 ## 7. Working with agents
-- One issue per session, in its own worktree (`make wt I=N`). Fresh context for the next issue.
+- One issue per session, in its own worktree (`make fix N`). Fresh context for the next issue.
 - Corrected an agent twice on the same thing? Start over with a better first prompt.
 - Every agent brief has: objective, output format, tools to use, and what is out of scope.
-- Reviews happen in a fresh context (`make review` locally, the `review` job in CI). An agent never
-  reviews its own diff in the same context that wrote it.
+- Reviews happen in a fresh context (`make review N` locally, the `review` job in CI, same
+  procedure). A local APPROVE precedes every `gh pr ready`. An agent never reviews its own diff in
+  the context that wrote it.
 - When the reviewer or a human catches a mistake an agent should not have made, the fix PR also
   adds one line to the Gotchas section of `CLAUDE.md`. Remove lines that stop earning their place.
 - State lives in git, issues and files, never only in a conversation. Commit small and often.

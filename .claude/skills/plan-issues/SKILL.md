@@ -1,6 +1,6 @@
 ---
 name: plan-issues
-description: Turn a task description into a GitHub epic with ordered, parallelisable sub-issues, then fan out one implement-issue agent per ready issue. Run together with the human before any code is written.
+description: Turn a task description into a GitHub epic with ordered, parallelisable sub-issues, then fan out one fix-issue agent per ready issue. Run together with the human before any code is written.
 disable-model-invocation: true
 ---
 # Plan issues for: $ARGUMENTS
@@ -37,10 +37,10 @@ an issue becomes hundreds of bad lines of code.
    Post the dependency order and the parallel waves in the epic body.
 5. **Run.** Ready set = open issues, not `blocked`/`needs-human`, dependencies closed, files disjoint
    from issues in flight. For each ready issue (at most three at a time) start a background agent whose
-   whole prompt is: "Follow `.claude/skills/implement-issue/SKILL.md` for issue #N. Keep scratch files
+   whole prompt is: "Follow `.claude/skills/fix-issue/SKILL.md` for issue #N. Keep scratch files
    inside your worktree. Report the PR URL and the final verdict." When one finishes, record it in a
    status table (issue, PR, review rounds, state), recompute the ready set, launch the next. Escalate
    `needs-human` stops immediately and keep the others running; never touch an in-flight worktree. On a
-   rate limit (`make review` exit 3 prints the reset time) stop launching and resume from the worktrees
-   after the reset. When nothing is ready or in flight: post the status table on the epic and close it
+   rate limit (`scripts/review.sh` exit 3 prints the reset time) stop launching and resume from the
+   worktrees after the reset. When nothing is ready or in flight: post the status table on the epic and close it
    if every sub-issue is closed.
