@@ -17,7 +17,7 @@ Wilson 95% CIs. Gives the baseline number everything else builds on.
 - [ ] `correctness_matrix(outputs_df)` returns a DataFrame indexed by question_id with one bool column
       per model (NaN where a model has no row).
 - [ ] `model_accuracy(outputs_df)` returns a DataFrame `model, n, acc, lo, hi` using `magic.wilson_interval`.
-- [ ] `uv run pytest tests/test_mmlupro.py` passes on tiny fixtures in `tests/fixtures/` (2 models,
+- [ ] `uv run pytest tests/test_mmlupro.py` passes on tiny fixtures in `tests/fixtures/` (3 models,
       6 questions incl. one duplicate row, one `generated_text` model, and one model with shifted ids) and asserts the exact
       accuracies and that the duplicate is dropped.
 - [ ] `uv run python scripts/mmlupro_baseline.py --limit 50` runs on real data, writes
