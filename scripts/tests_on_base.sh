@@ -8,7 +8,7 @@ git rev-parse -q --verify "$base" >/dev/null 2>&1 || base=main
 new=$(git diff --name-only --diff-filter=AM "$base...$head" -- tests/ | grep -E '\.py$' | grep -v conftest || true)
 [[ -n "$new" ]] || { echo "NO_NEW_TESTS between $base and $head"; exit 0; }
 tmp=$(mktemp -d)
-git worktree add -q "$tmp" "$base" 2>/dev/null || { echo "could not create base worktree"; exit 0; }
+git worktree add -q --detach "$tmp" "$base" 2>/dev/null || { echo "could not create base worktree"; exit 0; }
 for f in $new; do mkdir -p "$tmp/$(dirname "$f")"; git show "$head:$f" > "$tmp/$f"; done
 if (cd "$tmp" && uv run -q pytest -q -x -p no:cacheprovider $new > "$tmp/out.txt" 2>&1); then
   echo "SIGNAL_TAUTOLOGICAL: new/changed tests PASS against $base without the change: $new"
