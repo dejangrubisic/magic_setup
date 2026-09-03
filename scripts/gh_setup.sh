@@ -21,7 +21,7 @@ ruleset=$(cat <<'JSON'
 {
   "name": "main", "target": "branch", "enforcement": "active",
   "conditions": { "ref_name": { "include": ["~DEFAULT_BRANCH"], "exclude": [] } },
-  "bypass_actors": [ { "actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always" } ],
+  "bypass_actors": [],
   "rules": [
     { "type": "deletion" },
     { "type": "non_fast_forward" },
