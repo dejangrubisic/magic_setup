@@ -17,10 +17,16 @@ _STRICT = re.compile(r"answer is \(?([A-J])\)?", re.IGNORECASE)
 _LENIENT = re.compile(r"\b([A-J])\b")
 
 
-def extract_strict(text: str) -> str | None:
-    """First 'answer is (X)'; None means a format failure, not a wrong answer."""
-    m = _STRICT.search(text)
-    return m.group(1).upper() if m else None
+def extract_strict(text: str, first: bool = True) -> str | None:
+    """'answer is (X)' (first match by default); None means a format failure, not a wrong answer."""
+    found = _STRICT.findall(text)
+    return (found[0] if first else found[-1]).upper() if found else None
+
+
+def runaway(text: str) -> bool:
+    """True when the first and last strict answers differ: the model kept generating after answering."""
+    found = [f.upper() for f in _STRICT.findall(text)]
+    return len(found) > 1 and found[0] != found[-1]
 
 
 def extract_lenient(text: str) -> str | None:

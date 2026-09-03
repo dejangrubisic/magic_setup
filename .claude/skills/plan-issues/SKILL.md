@@ -19,7 +19,10 @@ an issue becomes hundreds of bad lines of code.
    - Files expected to change are disjoint across issues that can run in parallel. Shared files
      (`pyproject.toml`, `Makefile`, `conftest.py`, `CLAUDE.md`) change only in a dedicated issue.
    - Prefer more small issues over fewer big ones; an agent should finish one in 20-60 minutes.
-   - Data download/caching, evaluation harness, and analysis/report are separate issues.
+   - Data download/caching, evaluation harness, and analysis/report are separate issues. Issue 1
+     includes a 10-line inspection (shape, columns, join-key value counts, duplicates) recorded under
+     `## Data findings` in the epic; schema surprises are the norm, not the exception.
+   - "Files expected to change" always lists `tests/test_<module>.py` for every module it lists.
    - If the metric is a function of the ordering key (e.g. difficulty label used both to order a
      curriculum and to score it), say so in the issue so degenerate results are not treated as bugs.
    - Without GitHub (offline), an issue is a markdown file with the same five fields:

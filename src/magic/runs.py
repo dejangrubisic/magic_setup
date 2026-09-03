@@ -9,7 +9,7 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-from magic.io import ensure_dir, iter_jsonl, read_jsonl, write_jsonl
+from magic.io import dumps, ensure_dir, iter_jsonl, read_jsonl, write_jsonl
 
 
 def _git_sha() -> str | None:
@@ -53,7 +53,7 @@ class RunDir:
         """Write config.json, stamped with the git sha (if any) and the python version."""
         payload = {**config, "git_sha": _git_sha(), "python": platform.python_version()}
         p = self._path / "config.json"
-        p.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
+        p.write_text(dumps(payload, indent=2), encoding="utf-8")
         return p
 
     def config(self) -> dict | None:
@@ -80,7 +80,7 @@ class RunDir:
     def write_summary(self, summary: dict) -> Path:
         """Write summary.json last: its presence means the run finished."""
         p = self._path / "summary.json"
-        p.write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
+        p.write_text(dumps(summary, indent=2), encoding="utf-8")
         return p
 
     def summary(self) -> dict | None:

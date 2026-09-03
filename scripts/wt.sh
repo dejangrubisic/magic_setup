@@ -25,6 +25,7 @@ case "$cmd" in
     fi
     [[ -f "$root/.env" ]] && cp "$root/.env" "$dir/.env"
     (cd "$dir" && uv sync -q --locked)
+    [[ -d "$root/data" && ! -e "$dir/data" ]] && ln -s "$root/data" "$dir/data"   # one download, all worktrees
     echo "$dir"
     ;;
   rm)

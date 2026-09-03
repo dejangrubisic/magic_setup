@@ -19,6 +19,8 @@ Use the `reviewer` subagent before every PR. Read the skill file before acting o
 - Branch every issue from `origin/main`, never from another issue branch; if it depends on one, wait
   for that PR to merge. Issue amendments that touch shared files land on `main` first.
 - Parallel agents: use your own worktree (or `runs/`) for scratch files, never a shared temp dir.
+  `data/` is symlinked into every worktree by `make wt`; download once, in the main checkout.
+- Write run outputs through `magic.io`/`RunDir` only: they turn NaN into null (NaN is not JSON).
 - `uv run` re-syncs the env on every call; a stale `uv.lock` fails `make lint` (`uv lock` fixes it).
 - The Claude binary may not be on PATH; `make review` finds the IDE-bundled one automatically.
 - `datasets.load_dataset` caches under `~/.cache/huggingface`; large downloads go in `data/raw` and

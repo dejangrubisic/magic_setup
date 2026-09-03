@@ -5,10 +5,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from magic.io import iter_jsonl
-from magic.stats import bootstrap_ci
+from magic.stats import bootstrap_ci, wilson_interval
 
 
 def load_runs(root: str | Path = "runs") -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -49,19 +50,39 @@ def by_slice(
 
 
 def ci_by_group(
-    df: pd.DataFrame, group_cols: str | list[str], value_col: str = "score", n_boot: int = 1000
+    df: pd.DataFrame,
+    group_cols: str | list[str],
+    value_col: str = "score",
+    method: str = "bootstrap",
+    min_n: int = 0,
+    n_boot: int = 1000,
 ) -> pd.DataFrame:
-    """Per group: n, mean, lo, hi (bootstrap). Feed the rows to plots.line_with_ci or to_markdown.
-    Groups with n < 10 have unreliable intervals; the `n` column is there so you notice."""
+    """Per group: n, mean, lo, hi. method="wilson" for 0/1 scores (exact, fast), "bootstrap" otherwise.
+    Groups with n < min_n keep their mean but get NaN bounds and sort last, so small-n rows are not over-read."""
     out = []
+    names = group_cols if isinstance(group_cols, list) else [group_cols]
     for key, g in df.groupby(group_cols, sort=True):
-        point, lo, hi = bootstrap_ci(g[value_col].to_numpy(), n_boot=n_boot)
+        vals = g[value_col].to_numpy(dtype=float)
+        if method == "wilson":
+            if not set(np.unique(vals)) <= {0.0, 1.0}:
+                raise ValueError("wilson needs 0/1 scores")
+            point, lo, hi = wilson_interval(int(vals.sum()), len(vals))
+        else:
+            point, lo, hi = bootstrap_ci(vals, n_boot=n_boot)
+        if len(vals) < min_n:
+            lo = hi = float("nan")
         keys = key if isinstance(key, tuple) else (key,)
-        names = group_cols if isinstance(group_cols, list) else [group_cols]
         out.append({**dict(zip(names, keys)), "n": len(g), "mean": point, "lo": lo, "hi": hi})
-    return pd.DataFrame(out)
+    res = pd.DataFrame(out)
+    if min_n:
+        res = res.sort_values("n", ascending=False, kind="stable", key=lambda s: s >= min_n)
+    return res.reset_index(drop=True)
 
 
 def to_markdown(df: pd.DataFrame, floatfmt: str = ".3f") -> str:
-    """Markdown table via tabulate; the index becomes the first column."""
-    return df.to_markdown(floatfmt=floatfmt)
+    """Markdown table via tabulate; whole-number columns named n* print as integers, not 819.000."""
+    df = df.copy()
+    for c in df.columns:
+        if str(c).startswith("n") and df[c].dtype.kind == "f" and (df[c].dropna() % 1 == 0).all():
+            df[c] = df[c].astype("Int64")
+    return df.to_markdown(floatfmt=floatfmt, intfmt="d")

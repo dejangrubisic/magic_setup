@@ -104,3 +104,25 @@ def test_ci_by_group_and_config_in_load_runs(tmp_path):
     assert list(ci["n"]) == [6, 6]
     assert ((ci["lo"] <= ci["mean"]) & (ci["mean"] <= ci["hi"])).all()
     assert isinstance(ci, pd.DataFrame)
+
+
+def test_ci_by_group_wilson_and_min_n_and_integer_n():
+    import numpy as np
+    import pandas as pd
+
+    from magic.results import ci_by_group, to_markdown
+
+    df = pd.DataFrame({"g": ["a"] * 20 + ["b"] * 3, "score": [1.0] * 10 + [0.0] * 10 + [1.0] * 3})
+    ci = ci_by_group(df, "g", method="wilson", min_n=5)
+    a, b = ci.set_index("g").loc["a"], ci.set_index("g").loc["b"]
+    assert a["n"] == 20
+    assert abs(a["mean"] - 0.5) < 1e-9
+    assert 0.29 < a["lo"] < 0.31
+    assert 0.69 < a["hi"] < 0.71
+    assert b["n"] == 3
+    assert np.isnan(b["lo"])
+    assert np.isnan(b["hi"])
+    assert list(ci["g"]) == ["a", "b"]  # small-n rows sort last
+    md = to_markdown(ci)
+    assert "| 20 |" in md.replace("  ", " ") or " 20 " in md
+    assert "20.000" not in md

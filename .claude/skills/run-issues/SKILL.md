@@ -13,8 +13,9 @@ Argument: an epic number, or a list of issue numbers. Default parallelism: 3.
    prompt is: "Follow `.claude/skills/implement-issue/SKILL.md` for issue #N. Report the PR URL and
    the final verdict. Keep all scratch files inside your worktree." The skill creates its own worktree;
    do not pre-create one. Never run two agents on issues that share a file. More than three concurrent
-   agents plus CI reviews can exhaust a subscription's session window; if agents die with a
-   rate-limit message, wait for the reset and resume them from their worktrees, do not restart.
+   agents plus CI reviews can exhaust a subscription's session window. `make review` exits 3 (script)
+   on a rate limit and prints the reset time: stop launching, record it in the status table, and
+   resume every agent from its worktree after the reset; never restart from scratch.
 3. **Loop.** When an agent finishes, record its result in a status table (issue, PR, rounds, state),
    recompute the ready set, launch the next. Merges happen one at a time through `--auto --squash`;
    an agent whose PR conflicts rebases and re-runs tests before retrying.

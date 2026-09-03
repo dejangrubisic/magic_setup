@@ -45,3 +45,19 @@ def test_ensure_dir_is_idempotent(tmp_path):
 def test_read_jsonl_missing_file(tmp_path):
     with pytest.raises(FileNotFoundError):
         read_jsonl(tmp_path / "nope.jsonl")
+
+
+def test_nan_and_inf_become_null_in_jsonl(tmp_path):
+    import json
+    import math
+
+    import numpy as np
+
+    from magic.io import nan_to_none, read_jsonl, write_jsonl
+
+    p = write_jsonl(tmp_path / "x.jsonl", [{"a": float("nan"), "b": [1.0, math.inf], "c": np.nan}])
+    text = p.read_text()
+    assert "NaN" not in text
+    assert "Infinity" not in text
+    assert read_jsonl(p) == [{"a": None, "b": [1.0, None], "c": None}]
+    assert json.loads(json.dumps(nan_to_none({"k": (float("nan"), "s")}))) == {"k": [None, "s"]}
