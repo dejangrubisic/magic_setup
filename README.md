@@ -7,7 +7,7 @@ task with a human plus parallel Claude Code agents.
 make install                      # uv env + git hooks (once)
 make check                        # lint + test, same as CI
 /plan-issues <task description>   # in Claude Code: write the epic + sub-issues together
-/run-issues <epic>                # parallel agents, one worktree + PR per issue, CI agent reviews
+                                  # ...then fans out one agent per issue: worktree, PR, CI agent review
 ```
 
 Before the first issue on a new repo: `gh auth login`, `make gh-setup` (labels, squash-only
