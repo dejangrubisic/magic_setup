@@ -38,7 +38,6 @@ dev = [
     "ruff==0.16.5",
     "pytest>=9.1",
     "pytest-xdist>=3.6",
-    "pytest-cov>=6.0",
     "pre-commit>=4.0",
 ]
 
@@ -87,13 +86,3 @@ markers = [
     "slow: long-running tests; deselected by default (run all with `pytest -m ''`)",
     "network: needs internet / API keys; skipped in CI",
 ]
-
-# ---------------------------------------------------------------- coverage (advisory: `make test-cov`)
-[tool.coverage.run]
-branch = true
-source = ["src"]
-
-[tool.coverage.report]
-show_missing = true
-skip_covered = true
-exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError", "if __name__ == .__main__.:"]

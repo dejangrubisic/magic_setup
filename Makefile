@@ -6,10 +6,6 @@ SHELL := /bin/bash
 # Claude CLI: on PATH, or the binary bundled with the IDE extension.
 CLAUDE ?= $(shell command -v claude 2>/dev/null || ls -t $(HOME)/.cursor/extensions/anthropic.claude-code-*/resources/native-binary/claude 2>/dev/null | head -1)
 
-.PHONY: doctor
-doctor: ## Day-one readiness check (uv, claude, gh auth, secrets, ruleset)
-	@scripts/doctor.sh
-
 .PHONY: install
 install: ## Sync the env and install git hooks (run once per clone; worktrees share hooks)
 	uv sync
@@ -30,10 +26,6 @@ lint: ## Check format, lint, and that uv.lock matches pyproject (what CI runs)
 test: ## Fast tests, parallel, no coverage (what CI runs)
 	uv run pytest -n auto --durations=5
 
-.PHONY: test-cov
-test-cov: ## Tests with a coverage report on src/ (advisory)
-	uv run pytest -n auto --cov --cov-report=term-missing:skip-covered
-
 .PHONY: check
 check: lint test ## Everything CI checks, locally
 
@@ -52,11 +44,6 @@ wt-rm: ## Remove a merged issue worktree: make wt-rm I=<issue-number>
 .PHONY: gh-setup
 gh-setup: ## One-time GitHub config: labels, merge settings, branch ruleset (needs `gh auth login`)
 	scripts/gh_setup.sh
-
-.PHONY: clean
-clean: ## Remove caches (not data/ or runs/)
-	rm -rf .pytest_cache .ruff_cache .coverage htmlcov
-	find . -name __pycache__ -type d -prune -exec rm -rf {} +
 
 .PHONY: help
 help: ## Show this help
