@@ -234,8 +234,76 @@ class RandomCurriculum:
     def sample(self) -> Level:
         return self.pool[int(self.rng.integers(len(self.pool)))]
 
-    def update(self, level: Level, solved: bool, td_error: float) -> None:
+    def update(self, level: Level, solved: bool, td_error: float, steps_used: int) -> None:
         pass
+
+
+class Easy2Hard:
+    """Sliding window over the pool sorted by shortest-path length, advanced by env steps used."""
+
+    def __init__(self, pool: list[Level], total_steps: int, seed: int = 0, window: float = 0.25):
+        self.sorted = sorted(pool, key=lambda lvl: lvl.path_len)
+        self.total_steps = total_steps
+        self.window = window
+        self.rng = np.random.default_rng(seed)
+        self.steps = 0
+
+    def sample(self) -> Level:
+        n = len(self.sorted)
+        frac = min(1.0, self.steps / max(1, self.total_steps))
+        hi = max(1, round(frac * n))
+        lo = max(0, round((frac - self.window) * n))
+        hi = max(hi, lo + 1)
+        return self.sorted[int(self.rng.integers(lo, hi))]
+
+    def update(self, level: Level, solved: bool, td_error: float, steps_used: int) -> None:
+        self.steps += steps_used
+
+
+class PLRLite:
+    """Prioritised level replay, lite: a bounded buffer ranked by score, rank-based sampling.
+
+    With probability `p_replay` a buffered level is drawn with probability proportional to
+    1/rank (rank 1 = highest score); otherwise a uniform pool level is drawn. After each episode
+    the level's score is an EMA of |TD error| (`score="td"`) or of 1 - solved (`score="unsolved"`),
+    and the lowest-scored level is evicted when the buffer exceeds `buffer_size`.
+    """
+
+    def __init__(
+        self,
+        pool: list[Level],
+        seed: int = 0,
+        buffer_size: int = 100,
+        p_replay: float = 0.5,
+        score: str = "td",
+        ema: float = 0.5,
+    ) -> None:
+        if score not in ("td", "unsolved"):
+            raise ValueError(f"score must be 'td' or 'unsolved', got {score!r}")
+        self.pool = pool
+        self.rng = np.random.default_rng(seed)
+        self.buffer_size, self.p_replay, self.score_kind, self.ema = (
+            buffer_size,
+            p_replay,
+            score,
+            ema,
+        )
+        self.buffer: dict[str, tuple[Level, float]] = {}
+
+    def sample(self) -> Level:
+        if self.buffer and self.rng.random() < self.p_replay:
+            ranked = sorted(self.buffer.values(), key=lambda t: -t[1])
+            w = 1.0 / np.arange(1, len(ranked) + 1)
+            return ranked[int(self.rng.choice(len(ranked), p=w / w.sum()))][0]
+        return self.pool[int(self.rng.integers(len(self.pool)))]
+
+    def update(self, level: Level, solved: bool, td_error: float, steps_used: int) -> None:
+        new = td_error if self.score_kind == "td" else 1.0 - float(solved)
+        old = self.buffer[level.id][1] if level.id in self.buffer else new
+        self.buffer[level.id] = (level, self.ema * new + (1 - self.ema) * old)
+        if len(self.buffer) > self.buffer_size:
+            worst = min(self.buffer, key=lambda k: self.buffer[k][1])
+            del self.buffer[worst]
 
 
 def evaluate(agent: QAgent, levels: list[Level]) -> list[int]:
@@ -257,7 +325,7 @@ def train(
     while k <= n_ckpts:
         level = curriculum.sample()
         solved, td, used = agent.run_episode(level)
-        curriculum.update(level, solved, td)
+        curriculum.update(level, solved, td, used)
         steps += used
         if steps >= next_ckpt:
             per = evaluate(agent, heldout)
