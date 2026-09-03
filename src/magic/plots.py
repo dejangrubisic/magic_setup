@@ -2,11 +2,19 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+def _save(fig, path) -> None:
+    """Save a PNG, creating parent directories."""
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=120)
 
 
 def bar_with_ci(labels, values, lows, highs, title: str = "", path=None):
@@ -18,7 +26,7 @@ def bar_with_ci(labels, values, lows, highs, title: str = "", path=None):
     ax.set_title(title)
     fig.tight_layout()
     if path:
-        fig.savefig(path, dpi=120)
+        _save(fig, path)
     return fig
 
 
@@ -37,7 +45,7 @@ def heatmap(df, title: str = "", path=None, fmt: str = ".2f"):
     ax.set_title(title)
     fig.tight_layout()
     if path:
-        fig.savefig(path, dpi=120)
+        _save(fig, path)
     return fig
 
 
@@ -54,5 +62,5 @@ def line_with_ci(curves: dict, title: str = "", xlabel: str = "", ylabel: str = 
     ax.legend()
     fig.tight_layout()
     if path:
-        fig.savefig(path, dpi=120)
+        _save(fig, path)
     return fig
